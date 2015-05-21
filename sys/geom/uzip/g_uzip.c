@@ -852,7 +852,7 @@ g_uzip_taste(struct g_class *mp, struct g_provider *pp, int flags)
 	    pp2->stripeoffset, pp2->stripesize, pp2->flags));
 	DPRINTF(GUZ_DBG_INFO, ("%s: %u x %u blocks\n", gp->name, sc->nblocks,
 	    sc->blksz));
-	return (gp);
+		return (gp);
 
 e7:
 	free(sc->last_buf, M_GEOM);
