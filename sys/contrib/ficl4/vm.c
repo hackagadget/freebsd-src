@@ -1226,6 +1226,7 @@ COMPARE:
 			}
 
 
+#ifdef TESTMAIN
 			/**************************************************************************
 			**                     r a n d o m
 			** Ficl-specific
@@ -1246,7 +1247,7 @@ COMPARE:
 				srandom((dataTop--)->i);
 				continue;
 			}
-
+#endif
 
 
 			case ficlInstructionGreaterThan:
@@ -2740,8 +2741,10 @@ int ficlVmExecuteString(ficlVm *vm, ficlString s)
 
     case FICL_VM_STATUS_OUT_OF_TEXT:
         ficlVmPopIP(vm);
+#ifdef TESTMAIN
         if ((vm->state != FICL_VM_STATE_COMPILE) && (vm->sourceId.i == 0))
             ficlVmTextOut(vm, FICL_PROMPT);
+#endif
         break;
 
     case FICL_VM_STATUS_USER_EXIT:
