@@ -1,6 +1,8 @@
 # $FreeBSD$
 #
 
+.include <src.opts.mk>
+
 .include "Makefile.inc"
 
 .if ${MACHINE_CPUARCH} == "amd64" && defined(FICL32)
