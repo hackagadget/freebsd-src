@@ -86,6 +86,7 @@ __DEFAULT_YES_OPTIONS = \
     ELFTOOLCHAIN_BOOTSTRAP \
     EXAMPLES \
     FDT \
+    FICL4 \
     FILE \
     FINGER \
     FLOPPY \

@@ -1,13 +1,17 @@
 # $FreeBSD$
 #
 
-FICL_VERSION?=	4
+.if ${MK_FICL4} != "no"
+FICL_VERSION=	4
+.else
+FICL_VERSION=	3
+.endif
 .if !defined(FICLDIR) || empty(FICLDIR)
 FICLDIR :=	${.PARSEDIR:H:H}/contrib/ficl${FICL_VERSION}
 .endif
 
 .PATH: ${FICLDIR}
-.if ${FICL_VERSION} == 4
+.if ${MK_FICL4} != "no"
 .PATH: ${FICLDIR}/ficlplatform
 .endif
 .if defined(FICL32)
@@ -28,13 +32,13 @@ BASE_SRCS=	${BASE_SRCS.ficl${FICL_VERSION}}
 SRCS.ficl3=	sysdep.c
 SRCS=		${BASE_SRCS} ${SRCS.ficl${FICL_VERSION}} softcore.c
 CLEANFILES=	softcore.c testmain testmain.o
-.if ${FICL_VERSION} == 4
+.if ${MK_FICL4} != "no"
 CLEANFILES+=	makesoftcore
 .endif
 .if !make(testmain)
 CFLAGS+=	-ffreestanding -fPIC
 .endif
-.if ${FICL_VERSION} == 4
+.if ${MK_FICL4} != "no"
 CFLAGS+=	-DFICL_WANT_LZ_SOFTCORE=0
 CFLAGS+=	-DFICL_WANT_FLOAT=0
 CFLAGS+=	-DFICL_WANT_FILE=0
@@ -74,13 +78,13 @@ INTERNALLIB=
 .endif
 
 # Standard softwords
-.if ${FICL_VERSION} == 4
+.if ${MK_FICL4} != "no"
 .PATH: ${FICLDIR}/softcore
 .else
 .PATH: ${FICLDIR}/softwords
 .endif
 SOFTWORDS=	softcore.fr ifbrack.fr
-.if ${FICL_VERSION} == 4
+.if ${MK_FICL4} != "no"
 SOFTWORDS+=	ficl.fr
 .endif
 SOFTWORDS+=	marker.fr freebsd.fr ficllocal.fr
@@ -109,7 +113,7 @@ CFLAGS+=	-I${FICLDIR}
 CFLAGS+=	-I${FICLDIR}/${FICL_CPUARCH}
 CFLAGS+=	-I${FICLDIR:H:H}/boot/common
 
-.if ${FICL_VERSION} == 4
+.if ${MK_FICL4} != "no"
 makesoftcore: makesoftcore.c lzcompress.c bit.c
 	${CC} ${CFLAGS} ${CPPFLAGS} -DTESTMAIN \
 	    -DSOFTCORE_OUT=\"${.OBJDIR}/softcore.c\" -o ${.TARGET} ${.ALLSRC}
