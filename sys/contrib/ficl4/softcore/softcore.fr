@@ -43,7 +43,6 @@ decimal 32 constant bl
 
 
 \ ** CORE EXT
-.( loading CORE EXT words ) cr
 0  constant false 
 false invert constant true 
 : <>   = 0= ; 
@@ -70,7 +69,6 @@ variable span
 ;
 
 \ ** SEARCH+EXT words and ficl helpers
-.( loading SEARCH & SEARCH-EXT words ) cr 
 \ BRAND-WORDLIST is a helper for ficl-named-wordlist. Usage idiom:
 \   wordlist dup create , brand-wordlist
 \ gets the name of the word made by create and applies it to the wordlist...
