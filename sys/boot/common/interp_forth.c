@@ -77,7 +77,7 @@ extern unsigned bootprog_rev;
 
 #define pStack		dataStack
 
-#define ficlSetEnv(_s, _w, _v)	ficlDictionarySetConstant(ficlSystemGetDictionary((_s)), (_w), (_v))
+#define ficlSetEnv(_s, _w, _v)	ficlDictionarySetConstant(ficlSystemGetEnvironment((_s)), (_w), (_v))
 #define ficlNewVM(_s)		ficlSystemCreateVm((_s))
 #define ficlLookup(_s, _w)	ficlSystemLookup((_s), (_w))
 
