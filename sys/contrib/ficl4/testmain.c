@@ -69,9 +69,11 @@ int main(int argc, char **argv)
 
     while (returnValue != FICL_VM_STATUS_USER_EXIT)
     {
-        fputs(FICL_PROMPT, stdout);
+        ficlString s;
+
         if (fgets(buffer, sizeof(buffer), stdin) == NULL) break;
-        returnValue = ficlVmEvaluate(vm, buffer);
+        FICL_STRING_SET_FROM_CSTRING(s, buffer);
+        returnValue = ficlVmExecuteString(vm, s);
     }
 
     ficlSystemDestroy(system);

@@ -67,8 +67,3 @@ long ficlFileSize(ficlFile *ff)
 }
 #endif
 
-void ficlSystemCompilePlatform(ficlSystem *system)
-{
-    return;
-}
-

@@ -915,12 +915,27 @@ ficlInb(ficlVm *vm)
 #endif
 #endif
 
+ficlCell dictThreshold;
+ficlCell dictIncrease;
+
+static void
+ficlDictThreshold(ficlVm *vm)
+{
+    ficlStackPushPointer(vm->dataStack, &dictThreshold);
+}
+ 
+static void
+ficlDictIncrease(ficlVm *vm)
+{
+    ficlStackPushPointer(vm->dataStack, &dictIncrease);
+}
+
 
 /**************************************************************************
                         f i c l C o m p i l e P l a t f o r m
 ** Build FreeBSD platform extensions into the system dictionary
 **************************************************************************/
-void ficlCompilePlatform(ficlSystem *system)
+void ficlSystemCompilePlatform(ficlSystem *system)
 {
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
     ficlDictionary *environment = ficlSystemGetEnvironment(system);
@@ -943,6 +958,8 @@ void ficlCompilePlatform(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "ms",        ms,             FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "seconds",   pseconds,       FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "heap?",     freeHeap,       FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "dictthreshold", ficlDictThreshold, FICL_WORD_DEFAULT);
+    ficlDictionarySetPrimitive(dictionary, "dictincrease", ficlDictIncrease, FICL_WORD_DEFAULT);
 
     ficlDictionarySetPrimitive(dictionary, "setenv",    ficlSetenv,	    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "setenv?",   ficlSetenvq,    FICL_WORD_DEFAULT);
