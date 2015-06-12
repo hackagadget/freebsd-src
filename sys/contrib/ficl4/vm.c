@@ -241,18 +241,22 @@ FICL_PLATFORM_INLINE void ficlStackCheckNospill(ficlStack *stack, ficlCell *top,
 
 
 #define LOCAL_VARIABLE_SPILL	\
+	do { \
 		vm->ip = (ficlIp)ip;	\
 		vm->dataStack->top = dataTop;	\
 		vm->returnStack->top = returnTop;	\
 		FLOAT_LOCAL_VARIABLE_SPILL \
-		LOCALS_LOCAL_VARIABLE_SPILL
+		LOCALS_LOCAL_VARIABLE_SPILL \
+	} while (0)
 
 #define LOCAL_VARIABLE_REFILL	\
+	do { \
 		ip = (ficlInstruction *)vm->ip; \
 		dataTop = vm->dataStack->top;	\
 		returnTop = vm->returnStack->top;	\
 		FLOAT_LOCAL_VARIABLE_REFILL	\
-		LOCALS_LOCAL_VARIABLE_REFILL
+		LOCALS_LOCAL_VARIABLE_REFILL \
+	} while (0)
 
 
 void ficlVmInnerLoop(ficlVm *vm, ficlWord *fw)
@@ -292,7 +296,8 @@ void ficlVmInnerLoop(ficlVm *vm, ficlWord *fw)
 
 	if (except)
 		{
-		LOCAL_VARIABLE_SPILL;
+		if (except != FICL_VM_STATUS_OUT_OF_TEXT)
+		    LOCAL_VARIABLE_SPILL;
 	    vm->exceptionHandler = oldExceptionHandler;
 		ficlVmThrow(vm, except);
 		}
