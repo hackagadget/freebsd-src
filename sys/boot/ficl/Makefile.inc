@@ -87,7 +87,7 @@ SOFTWORDS=	softcore.fr ifbrack.fr
 .if ${MK_FICL4} != "no"
 SOFTWORDS+=	ficl.fr
 .endif
-SOFTWORDS+=	marker.fr freebsd.fr ficllocal.fr
+SOFTWORDS+=	jhlocal.fr marker.fr freebsd.fr ficllocal.fr
 # Optional OO extension softwords
 #SOFTWORDS+=	oo.fr classes.fr
 
