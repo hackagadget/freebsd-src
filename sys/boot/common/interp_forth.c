@@ -77,6 +77,7 @@ extern unsigned bootprog_rev;
 
 #define pStack		dataStack
 
+#define ficlExec(_vm, _s)	ficlVmEvaluate((_vm), _s)
 #define ficlSetEnv(_s, _w, _v)	ficlDictionarySetConstant(ficlSystemGetEnvironment((_s)), (_w), (_v))
 #define ficlNewVM(_s)		ficlSystemCreateVm((_s))
 #define ficlLookup(_s, _w)	ficlSystemLookup((_s), (_w))
@@ -99,15 +100,6 @@ ficlBuild(ficlSystem *system, char *name, ficlPrimitive code, char flags)
     ficlDictionaryAppendPrimitive(dictionary, name, code, flags);
     ficlDictionaryLock(dictionary, FICL_FALSE);
     return 0;
-}
-
-static int
-ficlExec(ficlVm *vm, char *pText)
-{
-    ficlString s;
-
-    FICL_STRING_SET_FROM_CSTRING(s, pText);
-    return ficlVmExecuteString(vm, s);
 }
 
 static ficlSystem *
