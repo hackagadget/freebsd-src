@@ -465,8 +465,8 @@ mac_veriexec_metadata_get_file_flags(dev_t fsid, long fileid, unsigned long gen,
  *
  * @return 0 if the process has an entry in the meta-data store, otherwise an
  *     error code
- */ 
-int 
+ */
+int
 mac_veriexec_metadata_get_executable_flags(struct ucred *cred, struct proc *p,
     unsigned char *flags, int check_files)
 {
