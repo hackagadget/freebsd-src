@@ -355,17 +355,16 @@ search:
 			 * add a new one, first try to malloc while
 			 * we hold mutex - should work most of the time.
 			 */
-			MALLOC(np, struct veriexec_dev_list *,
-			    sizeof(struct veriexec_dev_list), M_TEMP, M_NOWAIT);
+			np = malloc(sizeof(struct veriexec_dev_list),
+			    M_VERIEXEC, M_NOWAIT);
 			if (np == NULL) {
 				/*
 				 * So much for that plan, dop the mutex
 				 * and repeat...
 				 */
 				mtx_unlock(&ve_mutex);
-				MALLOC(np, struct veriexec_dev_list *,
-				       sizeof(struct veriexec_dev_list),
-				       M_TEMP, M_WAITOK);
+				np = malloc(sizeof(struct veriexec_dev_list),
+				    M_VERIEXEC, M_WAITOK);
 				mtx_lock(&ve_mutex);
 				/*
 				 * Repeat the seach, in case someone
@@ -671,17 +670,16 @@ search:
 		/*
 		 * We first try with mutex held and nowait.
 		 */
-		MALLOC(np, struct mac_veriexec_file_info *,
-		    sizeof(struct mac_veriexec_file_info), M_TEMP, M_NOWAIT);
+		np = malloc(sizeof(struct mac_veriexec_file_info), M_VERIEXEC,
+		    M_NOWAIT);
 		if (np == NULL) {
 			/*
 			 * It was worth a try, now
 			 * drop mutex while we malloc.
 			 */
 			mtx_unlock(&ve_mutex);
-			MALLOC(np, struct mac_veriexec_file_info *,
-			    sizeof(struct mac_veriexec_file_info), M_TEMP,
-			    M_WAITOK);
+			np = malloc(sizeof(struct mac_veriexec_file_info),
+			    M_VERIEXEC, M_WAITOK);
 			mtx_lock(&ve_mutex);
 			/*
 			 * We now have to repeat our search!
