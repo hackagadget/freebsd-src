@@ -450,6 +450,17 @@
 #define	ARM_REG_NUM_LR		14
 #define	ARM_REG_NUM_SP		13
 
+#define	INSN_RN_BITS(_instr)	(((_instr) >> 16) & 0xf)	/* Rn */
+#define	INSN_RD_BITS(_instr)	(((_instr) >> 12) & 0xf)	/* Rd */
+#define	INSN_RM_BITS(_instr)	((_instr) & 0xf)		/* Rm */
+
+#define	LDRSTR_I_BIT(_instr)	((_instr) & (1 << 25))
+#define	LDRSTR_P_BIT(_instr)	((_instr) & (1 << 24))
+#define	LDRSTR_U_BIT(_instr)	((_instr) & (1 << 23))
+#define	LDRSTR_B_BIT(_instr)	((_instr) & (1 << 22))
+#define	LDRSTR_W_BIT(_instr)	((_instr) & (1 << 21))
+#define	LDRSTR_L_BIT(_instr)	((_instr) & (1 << 20))
+
 #define THUMB_INSN_SIZE		2		/* Some are 4 bytes.  */
 
 #endif /* !MACHINE_ARMREG_H */

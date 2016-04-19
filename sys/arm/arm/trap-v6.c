@@ -40,6 +40,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/lock.h>
 #include <sys/mutex.h>
 #include <sys/signalvar.h>
+#include <sys/sysctl.h>
 #include <sys/ktr.h>
 #ifdef KTRACE
 #include <sys/uio.h>
@@ -59,6 +60,7 @@ __FBSDID("$FreeBSD$");
 #include <machine/frame.h>
 #include <machine/machdep.h>
 #include <machine/pcb.h>
+#include <machine/unaligned.h>
 #include <machine/vmparam.h>
 
 #ifdef KDB
@@ -167,6 +169,13 @@ static const struct abort aborts[] = {
 	{abort_fatal,	"Undefined Code (0x40F)"}
 };
 
+#ifdef ARM_UNALIGNED_ACCESS
+SYSCTL_NODE(_vm, OID_AUTO, user, CTLFLAG_RW, 0, "User mode settings");
+static int allow_unaligned_user = 1;
+SYSCTL_INT(_vm_user, OID_AUTO, unaligned_access, CTLFLAG_RW,
+    &allow_unaligned_user, 0, "Allow unaligned access");
+#endif
+ 
 static __inline void
 call_trapsignal(struct thread *td, int sig, int code, vm_offset_t addr)
 {
@@ -629,6 +638,13 @@ abort_align(struct trapframe *tf, u_int idx, u_int fsr, u_int far,
 		}
 		abort_fatal(tf, idx, fsr, far, prefetch, td, ksig);
 	}
+
+#ifdef ARM_UNALIGNED_ACCESS
+	/* Fix up user space alignment fault, if allowed */
+	if (allow_unaligned_user && handle_alignment_fault(tf, fsr, far) == 0)
+		return (0);
+#endif
+
 	/* Deliver a bus error signal to the process */
 	ksig->code = BUS_ADRALN;
 	ksig->sig = SIGBUS;

@@ -72,6 +72,7 @@ arm/arm/syscall.c		standard
 arm/arm/trap.c			optional	!armv6
 arm/arm/trap-v6.c		optional	armv6
 arm/arm/uio_machdep.c		standard
+arm/arm/unaligned.c		optional	arm_unaligned_access
 arm/arm/undefined.c		standard
 arm/arm/unwind.c		optional	ddb | kdtrace_hooks
 arm/arm/vm_machdep.c		standard
