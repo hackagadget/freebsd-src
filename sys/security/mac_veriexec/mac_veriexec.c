@@ -1,7 +1,7 @@
 /*
  * $FreeBSD$
  *
- * Copyright (c) 2011, 2012, 2013, 2015, Juniper Networks, Inc.
+ * Copyright (c) 2011, 2012, 2013, 2015, 2016, Juniper Networks, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@
 #include <sys/mac.h>
 #include <sys/mount.h>
 #include <sys/namei.h>
+#include <sys/priv.h>
 #include <sys/proc.h>
 #include <sys/sbuf.h>
 #include <sys/stat.h>
@@ -402,6 +403,35 @@ mac_veriexec_kld_check_load(struct ucred *cred, struct vnode *vp,
 
 /**
  * @internal
+ * @brief Check privileges that veriexec needs to be concerned about.
+ *
+ * The following privileges are checked by this function:
+ *  - PRIV_KMEM_WRITE\n
+ *    Check if writes to /dev/mem and /dev/kmem are allowed\n
+ *    (Only trusted processes are allowed)
+ *
+ * @param cred		credentials to use
+ * @param priv		privilege to check
+ *
+ * @return 0 if the privilege is allowed, error code otherwise.
+ */
+static int
+mac_veriexec_priv_check(struct ucred *cred, int priv)
+{
+
+	switch (priv) {
+	case PRIV_KMEM_WRITE:
+		if (!mac_veriexec_proc_is_trusted(cred, curproc))
+			return (EPERM);
+		break;
+	default:
+		break;
+	}
+	return (0);
+}
+
+/**
+ * @internal
  * @brief A program is being executed and needs to be validated.
  *
  * @param cred		credentials to use
@@ -656,6 +686,7 @@ static struct mac_policy_ops mac_veriexec_ops =
 	.mpo_kld_check_load = mac_veriexec_kld_check_load,
 	.mpo_mount_destroy_label = mac_veriexec_mount_destroy_label,
 	.mpo_mount_init_label = mac_veriexec_mount_init_label,
+	.mpo_priv_check = mac_veriexec_priv_check,
 	.mpo_proc_check_debug = mac_veriexec_proc_check_debug,
 	.mpo_vnode_check_exec = mac_veriexec_vnode_check_exec,
 	.mpo_vnode_check_open = mac_veriexec_vnode_check_open,
@@ -763,4 +794,37 @@ mac_veriexec_set_state(int state)
 {
 
 	mac_veriexec_state |= state;
+}
+
+/**
+ * @brief Determine if the process is trusted
+ *
+ * @param cred		credentials to use
+ * @param p		the process in question
+ *
+ * @return 1 if the process is trusted, otherwise 0.
+ */
+int
+mac_veriexec_proc_is_trusted(struct ucred *cred, struct proc *p)
+{
+	int already_locked, error;
+	unsigned char flags;
+
+	/* Make sure we lock the process if we do not already have the lock */
+	already_locked = PROC_LOCKED(p);
+	if (!already_locked)
+		PROC_LOCK(p);
+
+	error = mac_veriexec_metadata_get_executable_flags(cred, p, &flags, 0);
+
+	/* Unlock the process if we locked it previously */
+	if (!already_locked)
+		PROC_UNLOCK(p);
+
+	/* Any errors, deny access */
+	if (error != 0)
+		return (0);
+
+	/* Check that the trusted flag is set */
+	return ((flags & VERIEXEC_TRUSTED) == VERIEXEC_TRUSTED);
 }

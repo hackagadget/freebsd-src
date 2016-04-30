@@ -1,7 +1,7 @@
 /*
  * $FreeBSD$
  *
- * Copyright (c) 2011, 2012, 2013, 2015, Juniper Networks, Inc.
+ * Copyright (c) 2011, 2012, 2013, 2015, 2016, Juniper Networks, Inc.
  * All rights reserved.
  *
  * Originally derived from:
@@ -455,7 +455,7 @@ mac_veriexec_metadata_get_file_flags(dev_t fsid, long fileid, unsigned long gen,
 }
 
 /**
- * @brief Return the flags assigned to the specified process
+ * @brief get the files for the specified process
  *
  * @param cred		credentials to use
  * @param p		process to get the flags for
@@ -473,6 +473,8 @@ mac_veriexec_metadata_get_executable_flags(struct ucred *cred, struct proc *p,
 	struct vnode *proc_vn;
 	struct vattr vap;
 	int error;
+
+	PROC_LOCK_ASSERT(p, MA_OWNED);
 
 	/* Get the text vnode for the process */
 	proc_vn = p->p_textvp;

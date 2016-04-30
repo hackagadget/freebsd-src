@@ -1,7 +1,7 @@
 /*
  * $FreeBSD$
  *
- * Copyright (c) 2011, 2012, 2013, 2015, Juniper Networks, Inc.
+ * Copyright (c) 2011, 2012, 2013, 2015, 2016, Juniper Networks, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,8 +56,8 @@
 #define VERIEXEC_INDIRECT	(1<<0)  /* Only allow indirect execution */
 #define VERIEXEC_FILE		(1<<1)  /* Fingerprint of a plain file */
 #define VERIEXEC_NOTRACE	(1<<2)	/**< PTRACE not allowed */
-/* XXX these are currently unimplemented */
 #define VERIEXEC_TRUSTED	(1<<3)	/**< Safe to write /dev/mem */
+/* XXX these are currently unimplemented */
 #define VERIEXEC_NOFIPS		(1<<4)	/**< Not allowed in FIPS mode */
 
 #define VERIEXEC_STATE_INACTIVE	0	/**< Ignore */
@@ -155,6 +155,7 @@ int	mac_veriexec_metadata_add_file(int file_dev, dev_t fsid, long fileid,
 	    unsigned char flags, const char *fp_type, int override);
 int	mac_veriexec_metadata_has_file(dev_t fsid, long fileid, 
 	    unsigned long gen);
+int	mac_veriexec_proc_is_trusted(struct ucred *cred, struct proc *p);
 #endif
 
 #endif	/* _SECURITY_MAC_VERIEXEC_H */
