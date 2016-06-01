@@ -455,7 +455,7 @@ mac_veriexec_metadata_get_file_flags(dev_t fsid, long fileid, unsigned long gen,
 }
 
 /**
- * @brief get the files for the specified process
+ * @brief Return the flags assigned to the specified process
  *
  * @param cred		credentials to use
  * @param p		process to get the flags for

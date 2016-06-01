@@ -55,8 +55,8 @@
  */
 #define VERIEXEC_INDIRECT	(1<<0)  /* Only allow indirect execution */
 #define VERIEXEC_FILE		(1<<1)  /* Fingerprint of a plain file */
-/* XXX these are currently unimplemented */
 #define VERIEXEC_NOTRACE	(1<<2)	/**< PTRACE not allowed */
+/* XXX these are currently unimplemented */
 #define VERIEXEC_TRUSTED	(1<<3)	/**< Safe to write /dev/mem */
 #define VERIEXEC_NOFIPS		(1<<4)	/**< Not allowed in FIPS mode */
 

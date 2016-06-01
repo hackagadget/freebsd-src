@@ -315,6 +315,27 @@ mac_veriexec_copy_label(struct label *src, struct label *dest)
 
 /**
  * @internal
+ * @brief Check if the requested process can be debugged
+ *
+ * @param cred		credentials to use
+ * @param p		process to debug
+ *
+ * @return 0 if debugging is allowed, otherwise an error code.
+ */
+static int
+mac_veriexec_proc_check_debug(struct ucred *cred, struct proc *p)
+{
+	int error, flags;
+
+	error = mac_veriexec_get_executable_flags(cred, p, &flags, 0);
+	if (error != 0)
+		return (0);
+
+	return ((flags & VERIEXEC_NOTRACE) ? EACCES : 0);
+}
+
+/**
+ * @internal
  * @brief A KLD load has been requested and needs to be validated.
  *
  * @param cred		credentials to use
@@ -635,6 +656,7 @@ static struct mac_policy_ops mac_veriexec_ops =
 	.mpo_kld_check_load = mac_veriexec_kld_check_load,
 	.mpo_mount_destroy_label = mac_veriexec_mount_destroy_label,
 	.mpo_mount_init_label = mac_veriexec_mount_init_label,
+	.mpo_proc_check_debug = mac_veriexec_proc_check_debug,
 	.mpo_vnode_check_exec = mac_veriexec_vnode_check_exec,
 	.mpo_vnode_check_open = mac_veriexec_vnode_check_open,
 	.mpo_vnode_copy_label = mac_veriexec_copy_label,
