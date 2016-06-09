@@ -134,30 +134,19 @@ sysctl_mac_veriexec_db(SYSCTL_HANDLER_ARGS)
 static void
 mac_veriexec_print_state(struct sbuf *sbp)
 {
-	int states = 0;
 
 	if (mac_veriexec_state & VERIEXEC_STATE_INACTIVE)
-		sbuf_printf(sbp, "inactive");
-	if (mac_veriexec_state & VERIEXEC_STATE_LOADED) {
-		if (states++)
-			sbuf_printf(sbp, " ");
-		sbuf_printf(sbp, "loaded");
-	}
-	if (mac_veriexec_state & VERIEXEC_STATE_ACTIVE) {
-		if (states++)
-			sbuf_printf(sbp, " ");
-		sbuf_printf(sbp, "active");
-	}
-	if (mac_veriexec_state & VERIEXEC_STATE_ENFORCE) {
-		if (states++)
-			sbuf_printf(sbp, " ");
-		sbuf_printf(sbp, "enforce");
-	}
-	if (mac_veriexec_state & VERIEXEC_STATE_LOCKED) {
-		if (states++)
-			sbuf_printf(sbp, " ");
-		sbuf_printf(sbp, "locked");
-	}
+		sbuf_printf(sbp, "inactive ");
+	if (mac_veriexec_state & VERIEXEC_STATE_LOADED)
+		sbuf_printf(sbp, "loaded ");
+	if (mac_veriexec_state & VERIEXEC_STATE_ACTIVE)
+		sbuf_printf(sbp, "active ");
+	if (mac_veriexec_state & VERIEXEC_STATE_ENFORCE)
+		sbuf_printf(sbp, "enforce ");
+	if (mac_veriexec_state & VERIEXEC_STATE_LOCKED)
+		sbuf_printf(sbp, "locked ");
+	if (mac_veriexec_state != 0)
+		sbuf_trim(sbp);
 }
 
 /**
