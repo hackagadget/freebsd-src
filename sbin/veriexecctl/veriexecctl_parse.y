@@ -116,6 +116,14 @@ flag_spec: STRING
 		params.flags |= VERIEXEC_INDIRECT;
 	else if (strcasecmp($1, "file") == 0)
 		params.flags |= VERIEXEC_FILE;
+	else if (strcasecmp($1, "no_ptrace") == 0)
+		params.flags |= VERIEXEC_NOTRACE;
+	else if (strcasecmp($1, "trusted") == 0)
+		params.flags |= VERIEXEC_TRUSTED;
+	else {
+		yyeror("bad flag specification");
+		YYERROR;
+	}
 };
 
 eol: EOL
