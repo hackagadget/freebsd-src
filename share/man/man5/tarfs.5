@@ -1,0 +1,76 @@
+.\"
+.\" Copyright (c) 2015 Juniper Networks, Inc.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\" $FreeBSD$
+.\"
+.Dd Sept 11, 2015
+.Dt TARFS 5
+.Os
+.Sh NAME
+.Nm tarfs
+.Nd Tape archive file system
+.Sh SYNOPSIS
+To compile support for the
+.Nm ,
+place the following in your kernel configuration file:
+.Bd -ragged -offset indent
+.Cd "options TARFS"
+.Ed
+.Pp
+Alternatively, to load the driver as a
+module at boot time, place the following line in
+.Xr loader.conf 5 :
+.Bd -literal -offset indent
+tarfs_load="YES"
+.Ed
+.Sh DESCRIPTION
+The
+.Nm
+driver will permit the
+.Fx
+kernel to mount a tarball as a file system.
+.Sh EXAMPLES
+To mount a tarball:
+.Pp
+.Dl "mount -t tarfs /path/to/tarfile.tar /mnt"
+.Pp
+Alternatively, you can create a memory disk with the tarball as the backing
+store and mount the memory disk using
+.Nm :
+.Pp
+.Dl "mdconfig -t vnode -f /path/to/tarfile.tar"
+.Dl "mount -t tarfs /dev/mdX /mnt"
+.Pp
+This is useful for handling uzip-compressed tarballs.
+.Pp
+.Sh SEE ALSO
+.Xr tar 1 ,
+.Xr mdconfig 8 ,
+.Xr geom_uzip 8 ,
+.Xr mkuzip 8
+.Sh AUTHORS
+.An -nosplit
+The tape archive file system was written by
+.An Stephen J. Kiernan .
