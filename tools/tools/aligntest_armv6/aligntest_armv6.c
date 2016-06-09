@@ -51,6 +51,7 @@ static int tests_failed;
 static int tests_passed;
 static int total_tests;
 static int saved_allow;
+static int uflag;
 static jmp_buf env;
 static volatile int longjmp_ok;
 static volatile int sigbus_triggered;
@@ -117,7 +118,8 @@ static void
 outta_here(void)
 {
 
-	(void) set_allow_unaligned(saved_allow);
+	if (!uflag)
+		(void) set_allow_unaligned(saved_allow);
 
 	printf("\nTotal tests run: %d\n", total_tests);
 	printf("   Passed tests: %d\n", tests_passed);
@@ -138,6 +140,13 @@ outta_here(void)
 	do {								\
 		printf("PASS\n");					\
 		tests_passed++;						\
+		total_tests++;						\
+	} while (0)
+
+#define	SKIP_TESTCASE()							\
+	do {								\
+		printf("SKIPPED\n");					\
+		tests_skipped++;					\
 		total_tests++;						\
 	} while (0)
 
@@ -184,13 +193,16 @@ unaligned_imm_preindex_test(void)
 	 *****************************************************/
 	printf("[Case A.1: ldr unaligned ptr + imm w/o trap fixup]\n");
 
-	val = 0;
-	TRY_TESTCASE(ldr_imm1, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_imm(c_data);
-	CATCH_TESTCASE(ldr_imm1);
+	if (!uflag) {
+		val = 0;
+		TRY_TESTCASE(ldr_imm1, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_imm(c_data);
+		CATCH_TESTCASE(ldr_imm1);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #A.2: ldr unaligned ptr + imm w/ trap fixup *
@@ -218,13 +230,16 @@ done_imm2:
 	 *****************************************************/
 	printf("[Case A.3: ldr ptr + unaligned imm w/o trap fixup]\n");
 
-	val = 0;
-	TRY_TESTCASE(ldr_imm3, WITHOUT_FIXUP);
-	val = ldr_ptr_unaligned_imm(c_data);
-	CATCH_TESTCASE(ldr_imm3);
+	if (!uflag) {
+		val = 0;
+		TRY_TESTCASE(ldr_imm3, WITHOUT_FIXUP);
+		val = ldr_ptr_unaligned_imm(c_data);
+		CATCH_TESTCASE(ldr_imm3);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #A.4: ldr ptr + unaligned imm w/ trap fixup *
@@ -252,13 +267,16 @@ done_imm4:
 	 ***************************************************************/
 	printf("[Case A.5: ldr unaligned ptr + unaligned imm w/o trap fixup]\n");
 
-	val = 0;
-	TRY_TESTCASE(ldr_imm5, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_unaligned_imm(c_data);
-	CATCH_TESTCASE(ldr_imm5);
+	if (!uflag) {
+		val = 0;
+		TRY_TESTCASE(ldr_imm5, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_unaligned_imm(c_data);
+		CATCH_TESTCASE(ldr_imm5);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/**************************************************************
 	 * Case #A.6: ldr unaligned ptr + unaligned imm w/ trap fixup *
@@ -286,13 +304,16 @@ done_imm6:
 	 *****************************************************/
 	printf("[Case A.7: str unaligned ptr + imm w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	TRY_TESTCASE(str_imm7, WITHOUT_FIXUP);
-	str_unaligned_ptr_imm(data, htobe32(PTR_1_VAL));
-	CATCH_TESTCASE(str_imm7);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		TRY_TESTCASE(str_imm7, WITHOUT_FIXUP);
+		str_unaligned_ptr_imm(data, htobe32(PTR_1_VAL));
+		CATCH_TESTCASE(str_imm7);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #A.8: str unaligned ptr + imm w/ trap fixup *
@@ -322,13 +343,16 @@ done_imm8:
 	 *****************************************************/
 	printf("[Case A.9: str ptr + unaligned imm w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	TRY_TESTCASE(str_imm9, WITHOUT_FIXUP);
-	str_ptr_unaligned_imm(data, htobe32(PTR_7_VAL));
-	CATCH_TESTCASE(str_imm9);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		TRY_TESTCASE(str_imm9, WITHOUT_FIXUP);
+		str_ptr_unaligned_imm(data, htobe32(PTR_7_VAL));
+		CATCH_TESTCASE(str_imm9);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/*****************************************************
 	 * Case #A.10: str ptr + unaligned imm w/ trap fixup *
@@ -358,13 +382,16 @@ done_imm10:
 	 ****************************************************************/
 	printf("[Case A.11: str unaligned ptr + unaligned imm w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	TRY_TESTCASE(str_imm11, WITHOUT_FIXUP);
-	str_unaligned_ptr_unaligned_imm(data, htobe32(PTR_11_VAL));
-	CATCH_TESTCASE(str_imm11);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		TRY_TESTCASE(str_imm11, WITHOUT_FIXUP);
+		str_unaligned_ptr_unaligned_imm(data, htobe32(PTR_11_VAL));
+		CATCH_TESTCASE(str_imm11);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/***************************************************************
 	 * Case #A.12: str unaligned ptr + unaligned imm w/ trap fixup *
@@ -407,14 +434,17 @@ unaligned_imm_postindex_test(void)
 	 ****************************************************************/
 	printf("[Case B.1: ldr unaligned ptr + post-index imm w/o trap fixup]\n");
 
-	val = 0;
-	ptrval = 0;
-	TRY_TESTCASE(ldr_pi_imm1, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_postindex_imm(c_data, &ptrval);
-	CATCH_TESTCASE(ldr_pi_imm1);
+	if (!uflag) {
+		val = 0;
+		ptrval = 0;
+		TRY_TESTCASE(ldr_pi_imm1, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_postindex_imm(c_data, &ptrval);
+		CATCH_TESTCASE(ldr_pi_imm1);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/***************************************************************
 	 * Case #B.2: ldr unaligned ptr + post-index imm w/ trap fixup *
@@ -451,14 +481,18 @@ done_pi_imm2:
 	 ****************************************************************/
 	printf("[Case B.3: str unaligned ptr + post-index imm w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	ptrval = 0;
-	TRY_TESTCASE(str_pi_imm3, WITHOUT_FIXUP);
-	ptrval = str_unaligned_ptr_postindex_imm(data, htobe32(PTR_11_ALT_VAL));
-	CATCH_TESTCASE(str_pi_imm3);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		ptrval = 0;
+		TRY_TESTCASE(str_pi_imm3, WITHOUT_FIXUP);
+		ptrval = str_unaligned_ptr_postindex_imm(data,
+		    htobe32(PTR_11_ALT_VAL));
+		CATCH_TESTCASE(str_pi_imm3);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/***************************************************************
 	 * Case #B.4: str unaligned ptr + post-index imm w/ trap fixup *
@@ -516,13 +550,16 @@ unaligned_reg_preindex_test(void)
 	 *****************************************************/
 	printf("[Case C.1: ldr unaligned ptr + reg w/o trap fixup]\n");
 
-	val = 0;
-	TRY_TESTCASE(ldr_reg1, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_reg(c_data, PTR_1_IMM);
-	CATCH_TESTCASE(ldr_reg1);
+	if (!uflag) {
+		val = 0;
+		TRY_TESTCASE(ldr_reg1, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_reg(c_data, PTR_1_IMM);
+		CATCH_TESTCASE(ldr_reg1);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #C.2: ldr unaligned ptr + reg w/ trap fixup *
@@ -550,13 +587,16 @@ done_reg2:
 	 *****************************************************/
 	printf("[Case C.3: ldr ptr + unaligned reg w/o trap fixup]\n");
 
-	val = 0;
-	TRY_TESTCASE(ldr_reg3, WITHOUT_FIXUP);
-	val = ldr_ptr_unaligned_reg(c_data, PTR_7_IMM);
-	CATCH_TESTCASE(ldr_reg3);
+	if (!uflag) {
+		val = 0;
+		TRY_TESTCASE(ldr_reg3, WITHOUT_FIXUP);
+		val = ldr_ptr_unaligned_reg(c_data, PTR_7_IMM);
+		CATCH_TESTCASE(ldr_reg3);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #C.4: ldr ptr + unaligned reg w/ trap fixup *
@@ -584,13 +624,16 @@ done_reg4:
 	 *****************************************************/
 	printf("[Case C.5: ldr ptr + unaligned reg w/o trap fixup]\n");
 
-	val = 0;
-	TRY_TESTCASE(ldr_reg5, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_unaligned_reg(c_data, PTR_11_IMM);
-	CATCH_TESTCASE(ldr_reg5);
+	if (!uflag) {
+		val = 0;
+		TRY_TESTCASE(ldr_reg5, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_unaligned_reg(c_data, PTR_11_IMM);
+		CATCH_TESTCASE(ldr_reg5);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #C.6: ldr ptr + unaligned reg w/ trap fixup *
@@ -618,13 +661,16 @@ done_reg6:
 	 *****************************************************/
 	printf("[Case C.7: str unaligned ptr + reg w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	TRY_TESTCASE(str_reg7, WITHOUT_FIXUP);
-	str_unaligned_ptr_reg(data, PTR_1_IMM, htobe32(PTR_1_VAL));
-	CATCH_TESTCASE(str_reg7);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		TRY_TESTCASE(str_reg7, WITHOUT_FIXUP);
+		str_unaligned_ptr_reg(data, PTR_1_IMM, htobe32(PTR_1_VAL));
+		CATCH_TESTCASE(str_reg7);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #C.8: str unaligned ptr + reg w/ trap fixup *
@@ -654,13 +700,16 @@ done_reg8:
 	 *****************************************************/
 	printf("[Case C.9: str ptr + unaligned reg w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	TRY_TESTCASE(str_reg9, WITHOUT_FIXUP);
-	str_ptr_unaligned_reg(data, PTR_7_IMM, htobe32(PTR_7_VAL));
-	CATCH_TESTCASE(str_reg9);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		TRY_TESTCASE(str_reg9, WITHOUT_FIXUP);
+		str_ptr_unaligned_reg(data, PTR_7_IMM, htobe32(PTR_7_VAL));
+		CATCH_TESTCASE(str_reg9);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/****************************************************
 	 * Case #C.10: str ptr + unaligned reg w/ trap fixup *
@@ -690,13 +739,17 @@ done_reg10:
 	 ******************************************************/
 	printf("[Case C.11: str ptr + unaligned reg w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	TRY_TESTCASE(str_reg11, WITHOUT_FIXUP);
-	str_unaligned_ptr_unaligned_reg(data, PTR_11_IMM, htobe32(PTR_11_VAL));
-	CATCH_TESTCASE(str_reg11);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		TRY_TESTCASE(str_reg11, WITHOUT_FIXUP);
+		str_unaligned_ptr_unaligned_reg(data, PTR_11_IMM,
+		    htobe32(PTR_11_VAL));
+		CATCH_TESTCASE(str_reg11);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/*****************************************************
 	 * Case #C.12: str ptr + unaligned reg w/ trap fixup *
@@ -739,14 +792,18 @@ unaligned_reg_postindex_test(void)
 	 ****************************************************************/
 	printf("[Case D.1: ldr unaligned ptr + post-index reg w/o trap fixup]\n");
 
-	val = 0;
-	ptrval = 0;
-	TRY_TESTCASE(ldr_pi_reg1, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_postindex_reg(c_data, PTR_1_IMM, &ptrval);
-	CATCH_TESTCASE(ldr_pi_reg1);
+	if (!uflag) {
+		val = 0;
+		ptrval = 0;
+		TRY_TESTCASE(ldr_pi_reg1, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_postindex_reg(c_data, PTR_1_IMM,
+		    &ptrval);
+		CATCH_TESTCASE(ldr_pi_reg1);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/***************************************************************
 	 * Case #D.2: ldr unaligned ptr + post-index reg w/ trap fixup *
@@ -783,15 +840,18 @@ done_pi_reg2:
 	 ****************************************************************/
 	printf("[Case D.3: str unaligned ptr + post-index reg w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	ptrval = 0;
-	TRY_TESTCASE(str_pi_reg3, WITHOUT_FIXUP);
-	ptrval = str_unaligned_ptr_postindex_reg(data, PTR_1_IMM,
-	    htobe32(PTR_1_VAL));
-	CATCH_TESTCASE(str_pi_reg3);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		ptrval = 0;
+		TRY_TESTCASE(str_pi_reg3, WITHOUT_FIXUP);
+		ptrval = str_unaligned_ptr_postindex_reg(data, PTR_1_IMM,
+		    htobe32(PTR_1_VAL));
+		CATCH_TESTCASE(str_pi_reg3);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/***************************************************************
 	 * Case #D.4: str unaligned ptr + post-index reg w/ trap fixup *
@@ -830,14 +890,18 @@ done_pi_reg4:
 	 ********************************************************************/
 	printf("[Case D.5: ldr unaligned ptr + post-index reg LSL w/o trap fixup]\n");
 
-	val = 0;
-	ptrval = 0;
-	TRY_TESTCASE(ldr_pi_reg5, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_postindex_reg_lsl(c_data, PTR_11_IMM, &ptrval);
-	CATCH_TESTCASE(ldr_pi_reg5);
+	if (!uflag) {
+		val = 0;
+		ptrval = 0;
+		TRY_TESTCASE(ldr_pi_reg5, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_postindex_reg_lsl(c_data, PTR_11_IMM,
+		    &ptrval);
+		CATCH_TESTCASE(ldr_pi_reg5);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/*******************************************************************
 	 * Case #D.6: ldr unaligned ptr + post-index reg LSL w/ trap fixup *
@@ -874,15 +938,18 @@ done_pi_reg6:
 	 ********************************************************************/
 	printf("[Case D.7: str unaligned ptr + post-index reg LSL w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	ptrval = 0;
-	TRY_TESTCASE(str_pi_reg7, WITHOUT_FIXUP);
-	ptrval = str_unaligned_ptr_postindex_reg_lsl(data, PTR_11_IMM,
-	    htobe32(PTR_11_ALT_VAL));
-	CATCH_TESTCASE(str_pi_reg7);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		ptrval = 0;
+		TRY_TESTCASE(str_pi_reg7, WITHOUT_FIXUP);
+		ptrval = str_unaligned_ptr_postindex_reg_lsl(data, PTR_11_IMM,
+		    htobe32(PTR_11_ALT_VAL));
+		CATCH_TESTCASE(str_pi_reg7);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/*******************************************************************
 	 * Case #D.8: str unaligned ptr + post-index reg LSL w/ trap fixup *
@@ -921,14 +988,18 @@ done_pi_reg8:
 	 ********************************************************************/
 	printf("[Case D.9: ldr unaligned ptr + post-index reg LSR w/o trap fixup]\n");
 
-	val = 0;
-	ptrval = 0;
-	TRY_TESTCASE(ldr_pi_reg9, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_postindex_reg_lsr(c_data, PTR_11_IMM, &ptrval);
-	CATCH_TESTCASE(ldr_pi_reg9);
+	if (!uflag) {
+		val = 0;
+		ptrval = 0;
+		TRY_TESTCASE(ldr_pi_reg9, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_postindex_reg_lsr(c_data, PTR_11_IMM,
+		    &ptrval);
+		CATCH_TESTCASE(ldr_pi_reg9);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/********************************************************************
 	 * Case #D.10: ldr unaligned ptr + post-index reg LSR w/ trap fixup *
@@ -965,15 +1036,18 @@ done_pi_reg10:
 	 *********************************************************************/
 	printf("[Case D.11: str unaligned ptr + post-index reg LSR w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	ptrval = 0;
-	TRY_TESTCASE(str_pi_reg11, WITHOUT_FIXUP);
-	ptrval = str_unaligned_ptr_postindex_reg_lsr(data, PTR_11_IMM,
-	    htobe32(PTR_11_ALT_VAL));
-	CATCH_TESTCASE(str_pi_reg11);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		ptrval = 0;
+		TRY_TESTCASE(str_pi_reg11, WITHOUT_FIXUP);
+		ptrval = str_unaligned_ptr_postindex_reg_lsr(data, PTR_11_IMM,
+		    htobe32(PTR_11_ALT_VAL));
+		CATCH_TESTCASE(str_pi_reg11);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/********************************************************************
 	 * Case #D.12: str unaligned ptr + post-index reg LSR w/ trap fixup *
@@ -1012,14 +1086,18 @@ done_pi_reg12:
 	 *********************************************************************/
 	printf("[Case D.13: ldr unaligned ptr + post-index reg ASR w/o trap fixup]\n");
 
-	val = 0;
-	ptrval = 0;
-	TRY_TESTCASE(ldr_pi_reg13, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_postindex_reg_asr(c_data, PTR_11_IMM, &ptrval);
-	CATCH_TESTCASE(ldr_pi_reg13);
+	if (!uflag) {
+		val = 0;
+		ptrval = 0;
+		TRY_TESTCASE(ldr_pi_reg13, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_postindex_reg_asr(c_data, PTR_11_IMM,
+		    &ptrval);
+		CATCH_TESTCASE(ldr_pi_reg13);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/********************************************************************
 	 * Case #D.14: ldr unaligned ptr + post-index reg ASR w/ trap fixup *
@@ -1056,15 +1134,18 @@ done_pi_reg14:
 	 *********************************************************************/
 	printf("[Case D.15: str unaligned ptr + post-index reg ASR w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	ptrval = 0;
-	TRY_TESTCASE(str_pi_reg15, WITHOUT_FIXUP);
-	ptrval = str_unaligned_ptr_postindex_reg_asr(data, PTR_11_IMM,
-	    htobe32(PTR_11_ALT_VAL));
-	CATCH_TESTCASE(str_pi_reg15);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		ptrval = 0;
+		TRY_TESTCASE(str_pi_reg15, WITHOUT_FIXUP);
+		ptrval = str_unaligned_ptr_postindex_reg_asr(data, PTR_11_IMM,
+		    htobe32(PTR_11_ALT_VAL));
+		CATCH_TESTCASE(str_pi_reg15);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/********************************************************************
 	 * Case #D.16: str unaligned ptr + post-index reg ASR w/ trap fixup *
@@ -1103,14 +1184,18 @@ done_pi_reg16:
 	 *********************************************************************/
 	printf("[Case D.17: ldr unaligned ptr + post-index reg ROR w/o trap fixup]\n");
 
-	val = 0;
-	ptrval = 0;
-	TRY_TESTCASE(ldr_pi_reg17, WITHOUT_FIXUP);
-	val = ldr_unaligned_ptr_postindex_reg_ror(c_data, PTR_11_IMM, &ptrval);
-	CATCH_TESTCASE(ldr_pi_reg17);
+	if (!uflag) {
+		val = 0;
+		ptrval = 0;
+		TRY_TESTCASE(ldr_pi_reg17, WITHOUT_FIXUP);
+		val = ldr_unaligned_ptr_postindex_reg_ror(c_data, PTR_11_IMM,
+		    &ptrval);
+		CATCH_TESTCASE(ldr_pi_reg17);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/********************************************************************
 	 * Case #D.18: ldr unaligned ptr + post-index reg ROR w/ trap fixup *
@@ -1152,15 +1237,18 @@ done_pi_reg18:
 	 *********************************************************************/
 	printf("[Case D.19: str unaligned ptr + post-index reg ROR w/o trap fixup]\n");
 
-	bzero(data, sizeof(data));
-	ptrval = 0;
-	TRY_TESTCASE(str_pi_reg19, WITHOUT_FIXUP);
-	ptrval = str_unaligned_ptr_postindex_reg_ror(data, PTR_11_IMM,
-	    htobe32(PTR_11_ALT_VAL));
-	CATCH_TESTCASE(str_pi_reg19);
+	if (!uflag) {
+		bzero(data, sizeof(data));
+		ptrval = 0;
+		TRY_TESTCASE(str_pi_reg19, WITHOUT_FIXUP);
+		ptrval = str_unaligned_ptr_postindex_reg_ror(data, PTR_11_IMM,
+		    htobe32(PTR_11_ALT_VAL));
+		CATCH_TESTCASE(str_pi_reg19);
 
-	/* Make sure we received a SIGBUS signal */
-	CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+		/* Make sure we received a SIGBUS signal */
+		CHECK_TESTCASE(sigbus_triggered, "SIGBUS not seen\n");
+	} else
+		SKIP_TESTCASE();
 
 	/********************************************************************
 	 * Case #D.20: str unaligned ptr + post-index reg ROR w/ trap fixup *
@@ -1218,6 +1306,7 @@ usage(int exitcode)
 	printf("\t-h\tDisplay usage message\n");
 	printf("\t-i\tRun immediate offset tests\n");
 	printf("\t-r\tRun register offset tests\n");
+	printf("\t-u\tAssume unaligned access enabled (no sysctl tweaks)\n");
 	exit(exitcode);
 }
 
@@ -1238,6 +1327,9 @@ main (int argc, char *argv[])
 		case 'r':
 			rflag = 1;
 			break;
+		case 'u':
+			uflag = 1;
+			break;
 		case 'h':
 			usage(0);
 		case '?':
@@ -1251,7 +1343,9 @@ main (int argc, char *argv[])
 	if (!(aflag || iflag || rflag))
 		usage(EX_USAGE);
 
-	saved_allow = get_allow_unaligned();
+	if (!uflag)
+		saved_allow = get_allow_unaligned();
+
 	atexit(outta_here);
 
 	if (aflag || iflag)
