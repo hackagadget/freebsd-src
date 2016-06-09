@@ -31,7 +31,7 @@
 .\"
 .\"	$Id: veriexecctl.8,v 1.2 2004-09-09 05:51:04 dsw Exp $
 .\"
-.Dd March 7, 2004
+.Dd June 11, 2016
 .Dt VERIEXECCTL 8
 .Os
 .Sh NAME
@@ -58,20 +58,27 @@ characters) of the form:
 .Pp
 .Dl path	type	fingerprint	options
 .Pp
-Where
+The field
 .Em path
-is the full path to the file and
+is the full path to the file.
+.Pp
+The field
 .Em type
-is the type of fingerprint used, currently this may be either md5 or sha1.
-Other fingerprints may be available depending on kernel support.
-The
+is the type of fingerprint used, currently this may be any of rmd160,
+sha1, sha256, sha384, or sha512. The availability of these fingerprint types
+are dependant on kernel support. The
+.Va security.mac.veriexec.algorithms
+sysctl is consulted to determine the list of valid fingerprint types.
+.Pp
+The field
 .Em fingerprint
-field is a hexadecimal representation of the fingerprint for
+is a hexadecimal representation of the fingerprint for
 the file.
+.Pp
 The field
 .Em options
 contains the associated options for the file.
-Currently there are two valid options:
+Currently there are four valid options:
 .Pp
 .Bl -tag -width INDIRECT -compact
 .Pp
@@ -86,6 +93,17 @@ Files have their fingerprints verified during
 and are automatically made read only.
 This option may be used to verify shared libraries have not been
 tampered with.
+.It Pa NO_PTRACE
+If this option is set then the executable cannot be traced with the
+.Xr ptrace 2 process tracing and debugging call.
+.It Pa TRUSTED
+If this option is set then the executable is allowed to write to the
+.Xr mem 4
+devices.
+By default, when verified execution is enforced, no process
+is allowed to write to the
+.Xr mem 4
+devices.
 .El
 .Pp
 There must be only one executable/fingerprint pair per line.
@@ -104,5 +122,5 @@ first appeared in
 .Sh NOTES
 .Nm
 requires the kernel to have been configured with the
-.Dv VERIFIED_EXEC
-option and the verifiedexec pseudo-device.
+.Dv MAC_VERIEXEC
+option and the veriexec pseudo-device.
