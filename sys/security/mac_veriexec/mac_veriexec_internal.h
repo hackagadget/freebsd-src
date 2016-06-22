@@ -49,7 +49,7 @@
 
 struct mac_veriexec_file_info
 {
-	unsigned char flags;
+	int flags;
 	long fileid;
 	unsigned long gen;
 	struct mac_veriexec_fpops *ops;
@@ -73,9 +73,9 @@ struct vnode;
 int	mac_veriexec_metadata_fetch_fingerprint_status(struct vnode *vp,
 	    struct vattr *vap, struct thread *td, int check_files);
 int	mac_veriexec_metadata_get_executable_flags(struct ucred *cred,
-	    struct proc *p, unsigned char *flags, int check_files);
+	    struct proc *p, int *flags, int check_files);
 int	mac_veriexec_metadata_get_file_flags(dev_t fsid, long fileid,
-	    unsigned long gen, unsigned char *flags, int check_files);
+	    unsigned long gen, int *flags, int check_files);
 void	mac_veriexec_metadata_init(void);
 void	mac_veriexec_metadata_print_db(struct sbuf *sbp);
 int	mac_veriexec_metadata_unmounted(dev_t fsid, struct thread *td);

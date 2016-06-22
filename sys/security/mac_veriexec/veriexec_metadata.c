@@ -441,7 +441,7 @@ mac_veriexec_metadata_unmounted(dev_t fsid, struct thread *td)
  */
 int
 mac_veriexec_metadata_get_file_flags(dev_t fsid, long fileid, unsigned long gen,
-    unsigned char *flags, int check_files)
+    int *flags, int check_files)
 {
 	struct mac_veriexec_file_info *ip;
 	int found_dev;
@@ -468,7 +468,7 @@ mac_veriexec_metadata_get_file_flags(dev_t fsid, long fileid, unsigned long gen,
  */
 int
 mac_veriexec_metadata_get_executable_flags(struct ucred *cred, struct proc *p,
-    unsigned char *flags, int check_files)
+    int *flags, int check_files)
 {
 	struct vnode *proc_vn;
 	struct vattr vap;
@@ -611,7 +611,7 @@ mac_veriexec_metadata_fetch_fingerprint_status(struct vnode *vp,
 int
 mac_veriexec_metadata_add_file(int file_dev, dev_t fsid, long fileid,
     unsigned long gen, unsigned char fingerprint[MAXFINGERPRINTLEN],
-    unsigned char flags, const char *fp_type, int override)
+    int flags, const char *fp_type, int override)
 {
 	struct mac_veriexec_fpops *fpops;
 	struct veriexec_dev_list *lp;

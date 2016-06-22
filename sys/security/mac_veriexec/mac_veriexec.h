@@ -152,7 +152,7 @@ int	mac_veriexec_fingerprint_modevent(module_t mod, int type, void *data);
  */
 int	mac_veriexec_metadata_add_file(int file_dev, dev_t fsid, long fileid, 
 	    unsigned long gen, unsigned char fingerprint[MAXFINGERPRINTLEN], 
-	    unsigned char flags, const char *fp_type, int override);
+	    int flags, const char *fp_type, int override);
 int	mac_veriexec_metadata_has_file(dev_t fsid, long fileid, 
 	    unsigned long gen);
 int	mac_veriexec_proc_is_trusted(struct ucred *cred, struct proc *p);
