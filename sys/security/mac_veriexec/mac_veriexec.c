@@ -317,6 +317,10 @@ mac_veriexec_proc_check_debug(struct ucred *cred, struct proc *p)
 {
 	int error, flags;
 
+	/* If we are not enforcing veriexec, nothing for us to check */
+	if ((mac_veriexec_state & VERIEXEC_STATE_ENFORCE) == 0)
+		return (0);
+
 	error = mac_veriexec_get_executable_flags(cred, p, &flags, 0);
 	if (error != 0)
 		return (0);
@@ -407,6 +411,10 @@ mac_veriexec_kld_check_load(struct ucred *cred, struct vnode *vp,
 static int
 mac_veriexec_priv_check(struct ucred *cred, int priv)
 {
+
+	/* If we are not enforcing veriexec, nothing for us to check */
+	if ((mac_veriexec_state & VERIEXEC_STATE_ENFORCE) == 0)
+		return (0);
 
 	switch (priv) {
 	case PRIV_KMEM_WRITE:
