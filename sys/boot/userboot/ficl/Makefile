@@ -15,7 +15,7 @@ CFLAGS+=	-DFICL_WANT_LZ_SOFTCORE=0
 .endif
 
 BASE_SRCS.ficl3= dict.c ficl.c fileaccess.c float.c loader.c math64.c \
-	prefix.c search.c stack.c tools.c unix.c vm.c words.c
+	prefix.c search.c stack.c tools.c vm.c words.c
 BASE_SRCS.ficl4= bit.c callback.c dictionary.c double.c extras.c \
 	fileaccess.c float.c freebsd.c hash.c loader.c lzcompress.c \
 	lzuncompress.c prefix.c primitives.c search.c stack.c system.c \
