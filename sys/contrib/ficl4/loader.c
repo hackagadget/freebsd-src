@@ -35,7 +35,9 @@
 ** 
 *******************************************************************/
 
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <stand.h>
+#else
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -43,8 +45,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#else
-#include <stand.h>
 #endif
 #include "bootstrap.h"
 #include <string.h>

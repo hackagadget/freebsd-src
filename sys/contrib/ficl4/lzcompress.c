@@ -1,7 +1,7 @@
-#ifdef TESTMAIN
-#include <stdlib.h>
-#else
+#ifdef _STANDALONE
 #include <stand.h>
+#else
+#include <stdlib.h>
 #endif
 #include <assert.h>
 #include <string.h>

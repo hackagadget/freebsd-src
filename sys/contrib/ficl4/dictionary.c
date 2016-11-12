@@ -51,12 +51,12 @@
 ** SUCH DAMAGE.
 */
 
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <stand.h>
+#else
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#else
-#include <stand.h>
 #endif
 #include <inttypes.h>
 #include <string.h>

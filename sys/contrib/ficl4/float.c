@@ -41,12 +41,12 @@
 ** SUCH DAMAGE.
 */
 
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <stand.h>
+#else
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#else
-#include <stand.h>
 #endif
 #include <string.h>
 #include <math.h>
@@ -163,7 +163,7 @@ static ficlInteger ficlFloatStackDisplayCallback(void *c, ficlCell *cell)
 {
     struct stackContext *context = (struct stackContext *)c;
     char buffer[64];
-    sprintf(buffer, "[0x%08x %3d] %16f (0x%08x)\n", cell, context->count++, (double)(cell->f), cell->i);
+    sprintf(buffer, "[%p %3d] %16f (0x%08lx)\n", cell, context->count++, (double)(cell->f), cell->i);
     ficlVmTextOut(context->vm, buffer);
 	return FICL_TRUE;
 }

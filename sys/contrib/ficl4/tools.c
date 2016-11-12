@@ -54,13 +54,13 @@
 ** Specify breakpoint default action
 */
 
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <assert.h>
+#include <stand.h>
+#else
 #include <stdlib.h>
 #include <stdio.h>          /* sprintf */
 #include <ctype.h>
-#else
-#include <assert.h>
-#include <stand.h>
 #endif
 #include <string.h>
 #include "ficl.h"

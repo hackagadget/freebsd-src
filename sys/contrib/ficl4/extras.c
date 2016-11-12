@@ -1,9 +1,9 @@
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <stand.h>
+#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#else
-#include <stand.h>
 #endif
 #include <time.h>
 #include <string.h>
@@ -257,7 +257,9 @@ void ficlSystemCompileExtras(ficlSystem *system)
     ficlDictionarySetPrimitive(dictionary, "break",    ficlPrimitiveBreak,    FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "load",     ficlPrimitiveLoad,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "spewhash", ficlPrimitiveSpewHash, FICL_WORD_DEFAULT);
+#ifndef _STANDALONE
     ficlDictionarySetPrimitive(dictionary, "system",   ficlPrimitiveSystem,   FICL_WORD_DEFAULT);
+#endif
 
 #ifndef FICL_ANSI
     ficlDictionarySetPrimitive(dictionary, "clock",    ficlPrimitiveClock,    FICL_WORD_DEFAULT);

@@ -1,11 +1,11 @@
 #if !defined(__FICL_FREEBSD_H__)
 #define __FICL_FREEBSD_H__
 
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <stand.h>
+#else
 #include <stdint.h>
 #include <unistd.h>
-#else
-#include <stand.h>
 #endif
 
 #define FICL_WANT_PLATFORM (1)

@@ -137,7 +137,7 @@ FICL_INSTRUCTION_TOKEN(ficlInstructionK,        "k",         FICL_WORD_COMPILE_O
 
 FICL_INSTRUCTION_TOKEN(ficlInstructionCompare,  "compare",   FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionCompareInsensitive,  "compare-insensitive",   FICL_WORD_DEFAULT)
-#ifdef TESTMAIN
+#ifndef _STANDALONE
 FICL_INSTRUCTION_TOKEN(ficlInstructionRandom,     "random",    FICL_WORD_DEFAULT)
 FICL_INSTRUCTION_TOKEN(ficlInstructionSeedRandom,"seed-random",FICL_WORD_DEFAULT)
 #endif

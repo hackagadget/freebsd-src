@@ -141,7 +141,7 @@
 extern "C" {
 #endif
 
-#ifdef TESTMAIN
+#ifndef _STANDALONE
 #include <limits.h>
 #include <stddef.h>
 #include <stdio.h>

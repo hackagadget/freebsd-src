@@ -47,13 +47,13 @@
 ** SUCH DAMAGE.
 */
 
-#ifdef TESTMAIN
+#ifdef _STANDALONE
+#include <stand.h>
+#else
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
-#else
-#include <stand.h>
 #endif
 #include <string.h>
 #include "ficl.h"
