@@ -102,7 +102,7 @@ static void ficlPrimitiveSystem(ficlVm *vm)
 #endif
 
 
-
+#if FICL_WANT_FILE
 /*
 ** Ficl add-in to load a text file and execute it...
 ** Cheesy, but illustrative.
@@ -242,6 +242,7 @@ static void ficlPrimitiveSpewHash(ficlVm *vm)
     fclose(f);
     return;
 }
+#endif
 
 static void ficlPrimitiveBreak(ficlVm *vm)
 {
@@ -256,8 +257,10 @@ void ficlSystemCompileExtras(ficlSystem *system)
     ficlDictionary *dictionary = ficlSystemGetDictionary(system);
 
     ficlDictionarySetPrimitive(dictionary, "break",    ficlPrimitiveBreak,    FICL_WORD_DEFAULT);
+#if FICL_WANT_FILE
     ficlDictionarySetPrimitive(dictionary, "load",     ficlPrimitiveLoad,     FICL_WORD_DEFAULT);
     ficlDictionarySetPrimitive(dictionary, "spewhash", ficlPrimitiveSpewHash, FICL_WORD_DEFAULT);
+#endif
 #ifndef _STANDALONE
     ficlDictionarySetPrimitive(dictionary, "system",   ficlPrimitiveSystem,   FICL_WORD_DEFAULT);
 #endif
