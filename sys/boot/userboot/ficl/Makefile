@@ -71,8 +71,8 @@ CFLAGS+=	-I${FICL_SRCDIR}/${MACHINE_CPUARCH}
 CFLAGS+=	-I${.CURDIR:H:H}/common
 .if ${FICL_VERSION} == 4
 makesoftcore: makesoftcore.c lzcompress.c bit.c
-	${CC} ${CFLAGS} ${CPPFLAGS} -DSOFTCORE_OUT=\"${.CURDIR}/softcore.c\" \
-	    -o ${.TARGET} ${.ALLSRC}
+	${CC} ${CFLAGS:N-D_STANDALONE} ${CPPFLAGS} \
+	    -DSOFTCORE_OUT=\"${.CURDIR}/softcore.c\" -o ${.TARGET} ${.ALLSRC}
 
 softcore.c: ${SOFTWORDS} makesoftcore
 	${.CURDIR}/makesoftcore ${.ALLSRC:Nmakesoftcore}
