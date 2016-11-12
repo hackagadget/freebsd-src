@@ -4,48 +4,51 @@
 MK_SSP=		no
 
 FICL_VERSION?=	4
+FICL_SRCDIR=	${.CURDIR:H:H:H}/contrib/ficl${FICL_VERSION}
 
-.PATH: ${.CURDIR:H:H}/ficl${FICL_VERSION}
-.PATH: ${.CURDIR:H:H}/ficl${FICL_VERSION}/${MACHINE_CPUARCH}
+.PATH: ${FICL_SRCDIR}
+.PATH: ${FICL_SRCDIR}/${MACHINE_CPUARCH}
 .if ${FICL_VERSION} == 4
-.PATH: ${.CURDIR:H:H}/ficl${FICL_VERSION}/ficlplatform
+.PATH: ${FICL_SRCDIR}/ficlplatform
 
 CFLAGS+=	-DFICL_WANT_LZ_SOFTCORE=0
 .endif
 
 BASE_SRCS.ficl3= dict.c ficl.c fileaccess.c float.c loader.c math64.c \
-		prefix.c search.c stack.c tools.c vm.c words.c
-BASE_SRCS.ficl4= bit.c callback.c dictionary.c double.c extras.c fileaccess.c \
-		float.c hash.c loader.c lzcompress.c lzuncompress.c prefix.c \
-		primitives.c search.c stack.c system.c tools.c utility.c vm.c \
-		word.c unix.c
+	prefix.c search.c stack.c tools.c unix.c vm.c words.c
+BASE_SRCS.ficl4= bit.c callback.c dictionary.c double.c extras.c \
+	fileaccess.c float.c freebsd.c hash.c loader.c lzcompress.c \
+	lzuncompress.c prefix.c primitives.c search.c stack.c system.c \
+	tools.c utility.c vm.c word.c
 BASE_SRCS=	${BASE_SRCS.ficl${FICL_VERSION}}
 SRCS.ficl3=	sysdep.c
 SRCS=		${BASE_SRCS} ${SRCS.ficl${FICL_VERSION}} softcore.c
-CLEANFILES=	softcore.c testmain testmain.o
+CLEANFILES=	makesoftcore softcore.c \
+		testmain testmain.debug testmain.full testmain.o
 
 CWARNFLAGS.loader.c.c += -Wno-implicit-function-declaration
 
 .if HAVE_PNP
 CFLAGS+=	-DHAVE_PNP
 .endif
-.include <bsd.stand.mk>
 .ifmake testmain
 CFLAGS+=	-DTESTMAIN -D_TESTMAIN
 SRCS+=		testmain.c
 PROG=		testmain
+LIBADD=	m
 .include <bsd.prog.mk>
 .else
 LIB=		ficl
 INTERNALLIB=
+.include <bsd.stand.mk>
 .include <bsd.lib.mk>
 .endif
 
 # Standard softwords
 .if ${FICL_VERSION} == 4
-.PATH: ${.CURDIR:H:H}/ficl${FICL_VERSION}/softcore
+.PATH: ${FICL_SRCDIR}/softcore
 .else
-.PATH: ${.CURDIR:H:H}/ficl${FICL_VERSION}/softwords
+.PATH: ${FICL_SRCDIR}/softwords
 .endif
 SOFTWORDS=	softcore.fr ifbrack.fr
 .if ${FICL_VERSION} == 4
@@ -63,10 +66,9 @@ SOFTWORDS+=	jhlocal.fr marker.fr freebsd.fr ficllocal.fr
 CFLAGS+=	-m32 -mcpu=powerpc -I.
 .endif
 
-CFLAGS+=	-I${.CURDIR:H:H}/ficl${FICL_VERSION}
-CFLAGS+=	-I${.CURDIR:H:H}/ficl${FICL_VERSION}/${MACHINE_CPUARCH}
+CFLAGS+=	-I${FICL_SRCDIR}
+CFLAGS+=	-I${FICL_SRCDIR}/${MACHINE_CPUARCH}
 CFLAGS+=	-I${.CURDIR:H:H}/common
-
 .if ${FICL_VERSION} == 4
 makesoftcore: makesoftcore.c lzcompress.c bit.c
 	${CC} ${CFLAGS} ${CPPFLAGS} -DSOFTCORE_OUT=\"${.CURDIR}/softcore.c\" \
@@ -76,7 +78,7 @@ softcore.c: ${SOFTWORDS} makesoftcore
 	${.CURDIR}/makesoftcore ${.ALLSRC:Nmakesoftcore}
 .else
 softcore.c: ${SOFTWORDS} softcore.awk
-	(cd ${.CURDIR:H:H}/ficl${FICL_VERSION}/softwords; cat ${SOFTWORDS} \
+	(cd ${FICL_SRCDIR}/softwords; cat ${SOFTWORDS} \
 	    | awk -f softcore.awk -v datestamp="`LC_ALL=C date`") > ${.TARGET}
 .endif
 
