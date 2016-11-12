@@ -69,7 +69,7 @@ static void ficlPrimitiveClock(ficlVm *vm)
 
 #endif /* FICL_ANSI */
 
-
+#ifndef _STANDALONE
 /*
 ** Ficl interface to system (ANSI)
 ** Gets a newline (or NULL) delimited string from the input
@@ -99,6 +99,7 @@ static void ficlPrimitiveSystem(ficlVm *vm)
     }
     return;
 }
+#endif
 
 
 
