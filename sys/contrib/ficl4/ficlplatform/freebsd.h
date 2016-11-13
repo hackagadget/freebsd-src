@@ -8,6 +8,12 @@
 #include <unistd.h>
 #endif
 
+#define FICL_ANSI (1)
+#ifdef _STANDALONE
+#define FICL_WANT_FILE (0)
+#else
+#define FICL_WANT_EXTRAS (1)
+#endif
 #define FICL_WANT_PLATFORM (1)
 
 #define FICL_PLATFORM_OS              "FreeBSD"
