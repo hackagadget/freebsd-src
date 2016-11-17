@@ -31,7 +31,7 @@
 #include <sys/param.h>
 #include <sys/systm.h>
 
-#include <crypto/sha2/sha2.h>
+#include <crypto/sha2/sha512.h>
 
 #include <security/mac_veriexec/mac_veriexec.h>
 
