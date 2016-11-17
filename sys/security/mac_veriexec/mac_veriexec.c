@@ -321,7 +321,7 @@ mac_veriexec_proc_check_debug(struct ucred *cred, struct proc *p)
 	if ((mac_veriexec_state & VERIEXEC_STATE_ENFORCE) == 0)
 		return (0);
 
-	error = mac_veriexec_get_executable_flags(cred, p, &flags, 0);
+	error = mac_veriexec_metadata_get_executable_flags(cred, p, &flags, 0);
 	if (error != 0)
 		return (0);
 
