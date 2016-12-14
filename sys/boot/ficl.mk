@@ -4,6 +4,13 @@
 
 .include "defs.mk"
 
+.if ${MK_FICL4} != "no"
+FICL_VERSION=   4
+.else
+FICL_VERSION=   3
+.endif
+FICLSRC?=	${SRCTOP}/sys/contrib/ficl${FICL_VERSION}
+
 .if ${MACHINE_CPUARCH} == "amd64" && defined(FICL32)
 FICL_CPUARCH=	i386
 .elif ${MACHINE_ARCH:Mmips64*} != ""
@@ -13,6 +20,12 @@ FICL_CPUARCH=	${MACHINE_CPUARCH}
 .endif
 
 .PATH: ${FICLSRC} ${FICLSRC}/${FICL_CPUARCH}
+
+.if ${MK_FICL4} != "no"
+CFLAGS+=        -DFICL_WANT_LZ_SOFTCORE=0
+CFLAGS+=        -DFICL_WANT_FLOAT=0
+CFLAGS+=	-D_STANDALONE
+.endif
 
 .if ${MACHINE_CPUARCH} == "amd64"
 .if defined(FICL32)
