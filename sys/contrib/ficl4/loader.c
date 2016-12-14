@@ -937,67 +937,106 @@ ficlDictIncrease(ficlVm *vm)
 **************************************************************************/
 void ficlSystemCompilePlatform(ficlSystem *system)
 {
-    ficlDictionary *dictionary = ficlSystemGetDictionary(system);
-    ficlDictionary *environment = ficlSystemGetEnvironment(system);
+	ficlCompileFcn **fnpp;
+	ficlDictionary *dictionary = ficlSystemGetDictionary(system);
+	ficlDictionary *environment = ficlSystemGetEnvironment(system);
 
-    FICL_SYSTEM_ASSERT(system, dictionary);
-    FICL_SYSTEM_ASSERT(system, environment);
+	FICL_SYSTEM_ASSERT(system, dictionary);
+	FICL_SYSTEM_ASSERT(system, environment);
 
-    ficlDictionarySetPrimitive(dictionary, ".#",        displayCellNoPad,    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "isdir?",    isdirQuestion,  FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fopen",	    pfopen,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fclose",    pfclose,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fread",	    pfread,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "freaddir",  pfreaddir,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fload",	    pfload,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fkey",	    fkey,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fseek",     pfseek,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "fwrite",    pfwrite,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "key",	    key,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "key?",	    keyQuestion,    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "ms",        ms,             FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "seconds",   pseconds,       FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "heap?",     freeHeap,       FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "dictthreshold", ficlDictThreshold, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "dictincrease", ficlDictIncrease, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, ".#", displayCellNoPad,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "isdir?", isdirQuestion,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fopen",	pfopen,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fclose", pfclose,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fread",	pfread,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "freaddir", pfreaddir,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fload",	pfload,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fkey", fkey,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fseek", pfseek,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "fwrite", pfwrite,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "key", key,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "key?", keyQuestion,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "ms", ms,
+            FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "seconds", pseconds,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "heap?", freeHeap,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "dictthreshold",
+	    ficlDictThreshold, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "dictincrease",
+	    ficlDictIncrease, FICL_WORD_DEFAULT);
 
-    ficlDictionarySetPrimitive(dictionary, "setenv",    ficlSetenv,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "setenv?",   ficlSetenvq,    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "getenv",    ficlGetenv,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "unsetenv",  ficlUnsetenv,   FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "copyin",    ficlCopyin,	    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "copyout",   ficlCopyout,    FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "findfile",  ficlFindfile,   FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "ccall",	    ficlCcall,	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "setenv", ficlSetenv,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "setenv?", ficlSetenvq,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "getenv", ficlGetenv,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "unsetenv", ficlUnsetenv,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "copyin", ficlCopyin,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "copyout", ficlCopyout,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "findfile", ficlFindfile,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "ccall",	ficlCcall,
+	    FICL_WORD_DEFAULT);
 #ifndef TESTMAIN
 #ifdef __i386__
-    ficlDictionarySetPrimitive(dictionary, "outb",      ficlOutb,       FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "inb",       ficlInb,        FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "outb", ficlOutb,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "inb", ficlInb,
+	    FICL_WORD_DEFAULT);
 #endif
 #ifdef HAVE_PNP
-    ficlDictionarySetPrimitive(dictionary, "pnpdevices",ficlPnpdevices, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "pnphandlers",ficlPnphandlers, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pnpdevices", ficlPnpdevices,
+	    FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pnphandlers", ficlPnphandlers,
+	    FICL_WORD_DEFAULT);
 #endif
 #endif
 #ifdef __i386__
-    ficlDictionarySetPrimitive(dictionary, "pcibios-device-count", ficlPciBiosCountDevices, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "pcibios-read-config", ficlPciBiosReadConfig, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "pcibios-write-config", ficlPciBiosWriteConfig, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "pcibios-find-devclass", ficlPciBiosFindDevclass, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "pcibios-find-device", ficlPciBiosFindDevice, FICL_WORD_DEFAULT);
-    ficlDictionarySetPrimitive(dictionary, "pcibios-locator", ficlPciBiosLocator, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pcibios-device-count",
+	    ficlPciBiosCountDevices, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pcibios-read-config",
+	    ficlPciBiosReadConfig, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pcibios-write-config",
+	    ficlPciBiosWriteConfig, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pcibios-find-devclass",
+	    ficlPciBiosFindDevclass, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pcibios-find-device",
+	    ficlPciBiosFindDevice, FICL_WORD_DEFAULT);
+	ficlDictionarySetPrimitive(dictionary, "pcibios-locator",
+	    ficlPciBiosLocator, FICL_WORD_DEFAULT);
 #endif
+
+	SET_FOREACH(fnpp, Xficl_compile_set)
+		(*fnpp)(pSys);
 
 #if defined(PC98)
-    ficlDictionarySetConstant(environment, "arch-pc98",         FICL_TRUE);
+	ficlDictionarySetConstant(environment, "arch-pc98", FICL_TRUE);
 #elif defined(__i386__)
-    ficlDictionarySetConstant(environment, "arch-i386",         FICL_TRUE);
-    ficlDictionarySetConstant(environment, "arch-powerpc",      FICL_FALSE);
+	ficlDictionarySetConstant(environment, "arch-i386", FICL_TRUE);
+	ficlDictionarySetConstant(environment, "arch-powerpc", FICL_FALSE);
 #elif defined(__powerpc__)
-    ficlDictionarySetConstant(environment, "arch-i386",         FICL_FALSE);
-    ficlDictionarySetConstant(environment, "arch-powerpc",      FICL_TRUE);
+	ficlDictionarySetConstant(environment, "arch-i386", FICL_FALSE);
+	ficlDictionarySetConstant(environment, "arch-powerpc", FICL_TRUE);
 #endif
 
-    FICL_SYSTEM_ASSERT(system, ficlDictionaryCellsAvailable(dictionary) > 0);
-    return;
+	FICL_SYSTEM_ASSERT(system, ficlDictionaryCellsAvailable(dictionary) > 0);
+	return;
 }

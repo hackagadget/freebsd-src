@@ -65,4 +65,13 @@ typedef ficlInteger64 ficl2Integer;
 typedef ficlUnsigned64 ficl2Unsigned;
 #endif
 
+#include <sys/linker_set.h>
+
+struct ficlSystem;
+
+typedef void ficlCompileFcn(struct ficlSystem *);
+#define FICL_COMPILE_SET(func)  \
+	DATA_SET(Xficl_compile_set, func)
+SET_DECLARE(Xficl_compile_set, ficlCompileFcn);
+
 #endif /* !__FICL_FREEBSD_H__ */
