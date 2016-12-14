@@ -62,34 +62,7 @@ extern unsigned bootprog_rev;
  */
 
 #if FICL_VER_MAJOR == 4
-#define FICL_SYSTEM	ficlSystem
-#define FICL_VM		ficlVm
-#define FICL_WORD	ficlWord
-
-#define FW_DEFAULT	FICL_WORD_DEFAULT
-
-#define VM_ABORT	FICL_VM_STATUS_ABORT
-#define VM_ABORTQ	FICL_VM_STATUS_ABORTQ
-#define VM_ERREXIT	FICL_VM_STATUS_ERROR_EXIT
-#define VM_OUTOFTEXT	FICL_VM_STATUS_OUT_OF_TEXT
-#define	VM_QUIT		FICL_VM_STATUS_QUIT
-#define VM_USEREXIT	FICL_VM_STATUS_USER_EXIT
-
-#define pStack		dataStack
-
-#define ficlExec(_vm, _s)	ficlVmEvaluate((_vm), _s)
-#define ficlSetEnv(_s, _w, _v)	ficlDictionarySetConstant(ficlSystemGetEnvironment((_s)), (_w), (_v))
-#define ficlNewVM(_s)		ficlSystemCreateVm((_s))
-#define ficlLookup(_s, _w)	ficlSystemLookup((_s), (_w))
-
-#define stackFetch(_s, _i)	ficlStackFetch((_s), (_i))
-#define stackPopINT(_s)		ficlStackPopInteger((_s))
-#define stackPopPTR(_s)		ficlStackPopPointer((_s))
-#define stackPushINT(_s, _v)	ficlStackPushInteger((_s), (_v))
-
-#define vmGetInBuf(_vm)		ficlVmGetInBuf((_vm))
-#define vmThrow(_vm, _r)	ficlVmThrow((_vm), (_r))
-#define vmUpdateTib(_vm, _tib)	ficlVmUpdateTib((_vm), (_tib))
+#include "ficl4_compat.h"
 
 static int
 ficlBuild(ficlSystem *system, char *name, ficlPrimitive code, char flags)

@@ -14,11 +14,16 @@ __FBSDID("$FreeBSD$");
  * such hardware.
  */
 
+#include <assert.h>
 #include <stand.h>
 #include <string.h>
 #include <bootstrap.h>
 #ifdef BOOT_FORTH
 #include "ficl.h"
+
+#if FICL_VER_MAJOR == 4
+#include "ficl4_compat.h"
+#endif
 #endif
 
 static struct pnpinfo_stql pnp_devices;
@@ -225,7 +230,11 @@ ficlPnphandlers(FICL_VM *pVM)
  */
 static void ficlCompilePnp(FICL_SYSTEM *pSys)
 {
+#if FICL_VER_MAJOR < 4
     FICL_DICT *dp = pSys->dp;
+#else
+    ficlDictionary *dp = ficlSystemGetDictionary(pSys);
+#endif
     assert (dp);
 
     dictAppendWord(dp, "pnpdevices",ficlPnpdevices, FW_DEFAULT);

@@ -42,8 +42,7 @@ __FBSDID("$FreeBSD$");
 #define	RETURN(x)	stackPushINT(bf_vm->pStack,!x); return(x)
 
 #if FICL_VER_MAJOR == 4
-#define FICL_VM ficlVm
-#define VM_OUTOFTEXT FICL_VM_STATUS_OUT_OF_TEXT
+#include "ficl4_compat.h"
 #endif
 
 extern FICL_VM *bf_vm;
