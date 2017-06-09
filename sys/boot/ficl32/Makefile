@@ -1,7 +1,5 @@
 # $FreeBSD$
 
-FICL_VERSION?= 4
-
 FICL32=
 FICLDIR=	${.CURDIR}/../ficl${FICL_VERSION}
 

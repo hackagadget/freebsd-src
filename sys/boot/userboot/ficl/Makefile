@@ -85,13 +85,8 @@ softcore.c: ${SOFTWORDS} softcore.awk
 #
 #beforedepend ${OBJS}: machine
 #
-<<<<<<< df497bd192877e5ef5fe9f9cb453927ae5a7cd1f
 #machine: .NOMETA
 #	ln -sf ${.CURDIR}/../../i386/include machine
-=======
-#machine:
-#	ln -sf ${.CURDIR:H:H}/i386/include machine
->>>>>>> Move ficl 3.x sources to ficl3 directory.
 #
 #CLEANFILES+=	machine
 #.endif

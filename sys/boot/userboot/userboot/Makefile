@@ -44,6 +44,22 @@ LDFLAGS+=	-nostdlib -Wl,-Bsymbolic
 
 NEWVERSWHAT=	"User boot" ${MACHINE_CPUARCH}
 
+.if ${MK_FORTH} != "no"
+FICL_VERSION?=	4
+FICLDIR=	${.CURDIR:H:H:H}/contrib/ficl${FICL_VERSION}
+BOOT_FORTH=	yes
+CFLAGS+=        -DBOOT_FORTH -I${FICLDIR} -I${FICLDIR}/i386
+CFLAGS+=	-DBF_DICTSIZE=15000
+.if ${FICL_VERSION} == 4
+CFLAGS+=	-DFICL_WANT_LZ_SOFTCORE=0
+CFLAGS+=	-DFICL_WANT_FLOAT=0
+CFLAGS+=	-DFICL_WANT_FILE=0
+.endif
+LIBFICL=	${.OBJDIR}/../ficl/libficl.a
+.endif
+
+LIBSTAND=	${.OBJDIR}/../libstand/libstand.a
+
 .if ${MK_ZFS} != "no"
 CFLAGS+=	-DUSERBOOT_ZFS_SUPPORT
 LIBZFSBOOT=	${.OBJDIR}/../zfs/libzfsboot.a

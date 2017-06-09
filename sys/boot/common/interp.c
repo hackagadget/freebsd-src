@@ -41,6 +41,11 @@ __FBSDID("$FreeBSD$");
 #include "ficl.h"
 #define	RETURN(x)	stackPushINT(bf_vm->pStack,!x); return(x)
 
+#if FICL_VER_MAJOR == 4
+#define FICL_VM ficlVm
+#define VM_OUTOFTEXT FICL_VM_STATUS_OUT_OF_TEXT
+#endif
+
 extern FICL_VM *bf_vm;
 #else
 #define	RETURN(x)	return(x)
@@ -130,7 +135,11 @@ interact(const char *rc)
 	prompt();
 	ngets(input, sizeof(input));
 #ifdef BOOT_FORTH
+#if FICL_VER_MAJOR == 4
+	bf_vm->sourceId.i = 0;
+#else
 	bf_vm->sourceID.i = 0;
+#endif
 	bf_run(input);
 #else
 	if (!parse(&argc, &argv, input)) {
@@ -283,8 +292,13 @@ include(const char *filename)
 #ifndef BOOT_FORTH
     argv = NULL;
 #else
+#if FICL_VER_MAJOR == 4
+    prevsrcid = bf_vm->sourceId.i;
+    bf_vm->sourceId.i = fd;
+#else
     prevsrcid = bf_vm->sourceID.i;
     bf_vm->sourceID.i = fd;
+#endif
 #endif
     res = CMD_OK;
     for (sp = script; sp != NULL; sp = sp->next) {
@@ -329,7 +343,11 @@ include(const char *filename)
     if (argv != NULL)
 	free(argv);
 #else
+#if FICL_VER_MAJOR == 4
+    bf_vm->sourceId.i = prevsrcid;
+#else
     bf_vm->sourceID.i = prevsrcid;
+#endif
 #endif
     while(script != NULL) {
 	se = script;

@@ -61,6 +61,67 @@ extern unsigned bootprog_rev;
  * BootForth   Interface to Ficl Forth interpreter.
  */
 
+#if FICL_VER_MAJOR == 4
+#define FICL_SYSTEM	ficlSystem
+#define FICL_VM		ficlVm
+#define FICL_WORD	ficlWord
+
+#define FW_DEFAULT	FICL_WORD_DEFAULT
+
+#define VM_ABORT	FICL_VM_STATUS_ABORT
+#define VM_ABORTQ	FICL_VM_STATUS_ABORTQ
+#define VM_ERREXIT	FICL_VM_STATUS_ERROR_EXIT
+#define VM_OUTOFTEXT	FICL_VM_STATUS_OUT_OF_TEXT
+#define	VM_QUIT		FICL_VM_STATUS_QUIT
+#define VM_USEREXIT	FICL_VM_STATUS_USER_EXIT
+
+#define pStack		dataStack
+
+#define ficlSetEnv(_s, _w, _v)	ficlDictionarySetConstant(ficlSystemGetDictionary((_s)), (_w), (_v))
+#define ficlNewVM(_s)		ficlSystemCreateVm((_s))
+#define ficlLookup(_s, _w)	ficlSystemLookup((_s), (_w))
+
+#define stackFetch(_s, _i)	ficlStackFetch((_s), (_i))
+#define stackPopINT(_s)		ficlStackPopInteger((_s))
+#define stackPopPTR(_s)		ficlStackPopPointer((_s))
+#define stackPushINT(_s, _v)	ficlStackPushInteger((_s), (_v))
+
+#define vmGetInBuf(_vm)		ficlVmGetInBuf((_vm))
+#define vmThrow(_vm, _r)	ficlVmThrow((_vm), (_r))
+#define vmUpdateTib(_vm, _tib)	ficlVmUpdateTib((_vm), (_tib))
+
+static int
+ficlBuild(ficlSystem *system, char *name, ficlPrimitive code, char flags)
+{
+    ficlDictionary *dictionary = ficlSystemGetDictionary(system);
+
+    ficlDictionaryLock(dictionary, FICL_TRUE);
+    ficlDictionaryAppendPrimitive(dictionary, name, code, flags);
+    ficlDictionaryLock(dictionary, FICL_FALSE);
+    return 0;
+}
+
+static int
+ficlExec(ficlVm *vm, char *pText)
+{
+    ficlString s;
+
+    FICL_STRING_SET_FROM_CSTRING(s, pText);
+    return ficlVmExecuteString(vm, s);
+}
+
+static ficlSystem *
+ficlInitSystem(int nDictCells)
+{
+    ficlSystemInformation fsi;
+    ficlSystemInformationInitialize(&fsi);
+    fsi.dictionarySize = nDictCells;
+    if (fsi.stackSize < FICL_DEFAULT_STACK_SIZE)
+	fsi.stackSize = FICL_DEFAULT_STACK_SIZE;
+    return ficlSystemCreate(&fsi);
+}
+#endif
+
 FICL_SYSTEM *bf_sys;
 FICL_VM	*bf_vm;
 
@@ -109,7 +170,7 @@ bf_command(FICL_VM *vm)
 	if (nstrings)
 	    for (i = 0; i < nstrings; i++) {
 		len = stackPopINT(vm->pStack);
-		cp = stackPopPtr(vm->pStack);
+		cp = stackPopPTR(vm->pStack);
 		strcat(line, " ");
 		strncat(line, cp, len);
 	    }
