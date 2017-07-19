@@ -305,8 +305,9 @@ tarfs_readdir(struct vop_readdir_args *ap)
 		else {
 			uio->uio_offset = current->tfsnode_ino;
 			TARFS_DPF(VNODE,
-			    "%s: Setting current node to %p, ino %d\n",
-			    __func__, current, current->tfsnode_ino);
+			    "%s: Setting current node to %p, ino %ju\n",
+			    __func__, current,
+			    (uintmax_t)current->tfsnode_ino);
 			if (current->tfsnode_name != NULL)
 				TARFS_DPF(VNODE, "%s: name: %s\n", __func__,
 				    current->tfsnode_name);
@@ -524,8 +525,8 @@ tarfs_print(struct vop_print_args *ap)
 	vp = ap->a_vp;
 	tnp = VP_TO_TARFS_NODE(vp);
 
-	printf("tag tarfs, tarfs_node %p, links %d\n",
-	    tnp, tnp->tfsnode_nlink);
+	printf("tag tarfs, tarfs_node %p, links %ju\n",
+	    tnp, (uintmax_t)tnp->tfsnode_nlink);
 	printf("\tmode 0%o, owner %d, group %d, size %zd\n",
 	    tnp->tfsnode_mode, tnp->tfsnode_uid, tnp->tfsnode_gid,
 	    tnp->tfsnode_size);

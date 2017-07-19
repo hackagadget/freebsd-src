@@ -100,7 +100,7 @@ tarfs_print_node(struct tarfs_node *tnp)
 	printf("\ttfsnode_vnode %p\n", tnp->tfsnode_vnode);
 	printf("\ttfsnode_tmp %p\n", tnp->tfsnode_tmp);
 	printf("\ttfsnode_type %d\n", tnp->tfsnode_type);
-	printf("\ttfsnode_ino %d\n", tnp->tfsnode_ino);
+	printf("\ttfsnode_ino %ju\n", (uintmax_t)tnp->tfsnode_ino);
 	printf("\ttfsnode_size %zu\n", tnp->tfsnode_size);
 	printf("\ttfsnode_nblocks %zu\n", tnp->tfsnode_nblocks);
 	printf("\ttfsnode_name %s\n",
@@ -110,7 +110,7 @@ tarfs_print_node(struct tarfs_node *tnp)
 	printf("\ttfsnode_gid %d\n", tnp->tfsnode_gid);
 	printf("\ttfsnode_mode o%o\n", tnp->tfsnode_mode);
 	printf("\ttfsnode_flags %d\n", tnp->tfsnode_flags);
-	printf("\ttfsnode_nlink %d\n", tnp->tfsnode_nlink);
+	printf("\ttfsnode_nlink %ju\n", (uintmax_t)tnp->tfsnode_nlink);
 	printf("\ttfsnode_atime %d\n", (int)tnp->tfsnode_atime.tv_sec);
 	printf("\ttfsnode_mtime %d\n", (int)tnp->tfsnode_mtime.tv_sec);
 	printf("\ttfsnode_ctime %d\n", (int)tnp->tfsnode_ctime.tv_sec);
@@ -126,7 +126,7 @@ tarfs_print_node(struct tarfs_node *tnp)
 		break;
 	case VBLK:
 	case VCHR:
-		printf("\ttfsnode_rdev %u\n", tnp->tfsnode_rdev);
+		printf("\ttfsnode_rdev %ju\n", (uintmax_t)tnp->tfsnode_rdev);
 		break;
 	default:
 		break;
@@ -182,14 +182,15 @@ tarfs_lookup_dir(struct tarfs_node *tnp, off_t cookie)
 	}
 
 	TAILQ_FOREACH(current, &tnp->tfsnode_dir.dirhead, tfsnode_dirents) {
-		TARFS_DPF(LOOKUP, "%s: tarfs_node %p, current %p, ino %d\n",
-		    __func__, tnp, current, current->tfsnode_ino);
+		TARFS_DPF(LOOKUP, "%s: tarfs_node %p, current %p, ino %ju\n",
+		    __func__, tnp, current,
+		    (uintmax_t)current->tfsnode_ino);
 		TARFS_DPF_IFF(LOOKUP, current->tfsnode_name != NULL,
 		    "%s: name: %s\n", __func__, current->tfsnode_name);
 		if (current->tfsnode_ino == cookie) {
 			TARFS_DPF(LOOKUP, "%s: Found entry: tarfs_node %p, "
-			    "cookie %d\n", __func__, current,
-			    current->tfsnode_ino);
+			    "cookie %ju\n", __func__, current,
+			    (uintmax_t)current->tfsnode_ino);
 			break;
 		}
 	}

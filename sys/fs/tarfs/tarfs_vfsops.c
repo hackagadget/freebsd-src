@@ -812,8 +812,8 @@ tarfs_vget(struct mount *mp, ino_t ino, int flags, struct vnode **vpp)
 	struct vnode *vp;
 	int error;
 
-	TARFS_DPF(FS, "%s: mp %p, ino %d, flags %d\n", __func__, mp, ino,
-	    flags);
+	TARFS_DPF(FS, "%s: mp %p, ino %ju, flags %d\n", __func__, mp,
+	    (uintmax_t)ino, flags);
 
 	td = curthread;
 	error = vfs_hash_get(mp, ino, flags, td, vpp, NULL, NULL);
@@ -825,7 +825,8 @@ tarfs_vget(struct mount *mp, ino_t ino, int flags, struct vnode **vpp)
 		return error;
 	}
 
-	TARFS_DPF(FS, "%s: no hashed vnode for inode %d\n", __func__, ino);
+	TARFS_DPF(FS, "%s: no hashed vnode for inode %ju\n", __func__,
+	    (uintmax_t)ino);
 
 	tmp = VFS_TO_TARFS(mp);
 	/* XXX Should use hash instead? */
