@@ -112,18 +112,18 @@ vfp_init(void)
 
 	/*
 	 * If the coprocessor access bits reset to 0 after the write, then
-	 * the coprocessor does not exist in the system
+	 * the coprocessor does not exist in the system.
 	 */
 	coproc = get_coprocessorACR();
-	if ((coproc & COPROC10) == 0 || (coproc & COPROC11) == 0) {
+	if ((coproc & (COPROC10 | COPROC11)) != (COPROC10 | COPROC11)) {
 		/*
-		 * If either CP10 or CP11 were able to be enabled,
-		 * disable them, as we should not have one and not the other.
+		 * Either CP10 and/or CP11 reset to default values,
+		 * indicating the hardware is not available.
+		 * Explicitly disable both, as there could be buggy hardware
+		 * that allows one and not the other to be set.
 		 */
-		if ((coproc & (COPROC10 | COPROC11)) != 0) {
-			coproc &= ~(COPROC10 | COPROC11);
-			set_coprocessorACR(coproc);
-		}
+		coproc &= ~(COPROC10 | COPROC11);
+		set_coprocessorACR(coproc);
 		return;
 	}
 
