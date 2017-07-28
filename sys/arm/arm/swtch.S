@@ -89,6 +89,9 @@ __FBSDID("$FreeBSD$");
 
 #ifdef VFP
 	.fpu vfp	/* allow VFP instructions */
+
+.Lvfp_exists:
+        .word   _C_LABEL(vfp_exists)
 #endif
 
 ENTRY(savectx)
@@ -99,11 +102,16 @@ ENTRY(savectx)
 	add	r3, r0, #(PCB_R4)
 	stmia	r3, {r4-r12, sp, lr, pc}
 #ifdef VFP
+	ldr	r2, .Lvfp_exists
+	ldr	r2, [r2]
+	cmp	r2, #0
+	beq	1f
 	fmrx	r2, fpexc		/* If the VFP is enabled */
 	tst	r2, #(VFPEXC_EN)	/* the current thread has */
 	movne	r1, #1			/* used it, so go save */
 	addne	r0, r0, #(PCB_VFPSTATE)	/* the state into the PCB */
 	blne	_C_LABEL(vfp_store)	/* and disable the VFP. */
+1:
 #endif
 	add	sp, sp, #4;
 	ldmfd	sp!, {pc}

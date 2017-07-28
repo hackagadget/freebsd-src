@@ -110,6 +110,23 @@ vfp_init(void)
 	coproc |= COPROC10 | COPROC11;
 	set_coprocessorACR(coproc);
 
+	/*
+	 * If the coprocessor access bits reset to 0 after the write, then
+	 * the coprocessor does not exist in the system
+	 */
+	coproc = get_coprocessorACR();
+	if ((coproc & COPROC10) == 0 || (coproc & COPROC11) == 0) {
+		/*
+		 * If either CP10 or CP11 were able to be enabled,
+		 * disable them, as we should not have one and not the other.
+		 */
+		if ((coproc & (COPROC10 | COPROC11)) != 0) {
+			coproc &= ~(COPROC10 | COPROC11);
+			set_coprocessorACR(coproc);
+		}
+		return;
+	}
+
 	fpsid = fmrx(fpsid);		/* read the vfp system id */
 	fpexc = fmrx(fpexc);		/* read the vfp exception reg */
 

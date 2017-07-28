@@ -112,6 +112,10 @@ __FBSDID("$FreeBSD$");
 	.word	PCPU_SIZE
 .Lblocked_lock:
 	.word	_C_LABEL(blocked_lock)
+#ifdef VFP
+.Lvfp_exists:
+	.word	_C_LABEL(vfp_exists)
+#endif
 
 ENTRY(cpu_context_switch)
 	DSB
@@ -163,7 +167,12 @@ ENTRY(cpu_throw)
 	mov	r11, r1			/* r11 = newtd */
 
 #ifdef VFP				/* This thread is dying, disable */
+	ldr	r9, .Lvfp_exists
+	ldr	r9, [r9]
+	cmp	r9, #0
+	beq	1f
 	bl	_C_LABEL(vfp_discard)	/* VFP without preserving state. */
+1:
 #endif
 	GET_PCPU(r8, r9)		/* r8 = current pcpu */
 	ldr	r4, [r8, #PC_CPUID]	/* r4 = current cpu id */
@@ -313,12 +322,17 @@ ENTRY(cpu_switch)
 
 
 #ifdef VFP
+	ldr	r0, .Lvfp_exists
+	ldr	r0, [r0]
+	cmp	r0, #0
+	beq	1f
 	ldr	r3, [r10, #(TD_PCB)]
 	fmrx	r0, fpexc		/* If the VFP is enabled */
 	tst	r0, #(VFPEXC_EN)	/* the current thread has */
 	movne	r1, #1			/* used it, so go save */
 	addne	r0, r3, #(PCB_VFPSTATE)	/* the state into the PCB */
 	blne	_C_LABEL(vfp_store)	/* and disable the VFP. */
+1:
 #endif
 
 	/*
