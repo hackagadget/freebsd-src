@@ -70,6 +70,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/kerneldump.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <sys/sysctl.h>
 
 #include <capsicum_helpers.h>
 #include <ctype.h>
@@ -102,7 +103,8 @@ __FBSDID("$FreeBSD$");
 
 static cap_channel_t *capsyslog;
 static fileargs_t *capfa;
-static int checkfor, compress, clear, force, keep, verbose;	/* flags */
+static int checkfor, compress, clear, force, keep, livedump, verbose;
+							/* flags */
 static int nfound, nsaved, nerr;			/* statistics */
 static int maxdumps;
 
@@ -1066,7 +1068,7 @@ main(int argc, char **argv)
 	const char *savedir;
 	int i, ch, error, savedirfd;
 
-	checkfor = compress = clear = force = keep = verbose = 0;
+	checkfor = compress = clear = force = keep = livedump = verbose = 0;
 	nfound = nsaved = nerr = 0;
 	savedir = ".";
 
@@ -1091,6 +1093,9 @@ main(int argc, char **argv)
 		case 'k':
 			keep = 1;
 			break;
+		case 'L':
+			livedump = 1;
+			break;
 		case 'm':
 			maxdumps = atoi(optarg);
 			if (maxdumps <= 0) {
@@ -1112,6 +1117,8 @@ main(int argc, char **argv)
 		usage();
 	if (clear && (compress || keep))
 		usage();
+	if (livedump && (checkfor || clear || compress || force || keep))
+		usage();
 	if (maxdumps > 0 && (checkfor || clear))
 		usage();
 	argc -= optind;
@@ -1126,6 +1133,14 @@ main(int argc, char **argv)
 		argc--;
 		argv++;
 	}
+	/* Handle live dump */
+	if (livedump) {
+		if (sysctlbyname("kern.livedump.invoke", NULL, 0, savedir,
+		    strlen(savedir) + 1) == -1)
+			exit(1);
+		return (0);
+	}
+
 	if (argc == 0)
 		argv = enum_dumpdevs(&argc);
 
