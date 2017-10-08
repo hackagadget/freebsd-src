@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, Stephen J. Kiernan
+ * Copyright (c) 2015, 2016, 2017, Stephen J. Kiernan
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,10 +51,6 @@ __FBSDID("$FreeBSD$");
 #include <dev/random/randomdev.h>
 #include <dev/random/random_harvestq.h>
 
-#if !defined(BCM2835_RNG_USE_CALLOUT)
-#define	BCM2835_RNG_USE_INTERRUPT
-#endif
-
 static device_attach_t bcm2835_rng_attach;
 static device_detach_t bcm2835_rng_detach;
 static device_probe_t bcm2835_rng_probe;
@@ -92,22 +88,34 @@ static device_probe_t bcm2835_rng_probe;
 #define	RNG_NUM_OSCILLATORS	6
 #define	RNG_STALL_COUNT_DEFAULT	10
 
+#define	RNG_CALLOUT_RATE	5000		/* Time is ms */
+
+enum bcm2835_rng_mode {
+	BCM2835_RNG_CALLOUT_MODE,
+	BCM2835_RNG_INTERRUPT_MODE,
+	BCM2835_RNG_LAST_MODE
+};
+
 struct bcm2835_rng_softc {
 	device_t		sc_dev;
-	struct resource *	sc_mem_res;
-	struct resource *	sc_irq_res;
-	void *			sc_intr_hdl;
-#if defined(BCM2835_RNG_USE_CALLOUT) || defined(BCM2835_RNG_USE_INTERRUPT)
+	enum bcm2835_rng_mode	sc_mode;
 	uint32_t		sc_buf[RNG_FIFO_WORDS];
-#endif
-#if defined(BCM2835_RNG_USE_CALLOUT)
 	struct callout		sc_rngto;
 	int			sc_rnghz;
-#endif
 	int			sc_stall_count;
 	int			sc_rbg2x;
 	long			sc_underrun;
+	struct resource *	sc_mem_res;
+	struct resource *	sc_irq_res;
+	void *			sc_intr_hdl;
 };
+
+static const char *const bcm2835_rng_sysctl_modes[] = {
+	"callout",
+	"interrupt",
+	NULL
+};
+CTASSERT(nitems(bcm2835_rng_sysctl_modes) - 1 == BCM2835_RNG_LAST_MODE);
 
 static struct ofw_compat_data compat_data[] = {
 	{"broadcom,bcm2835-rng",	1},
@@ -214,7 +222,6 @@ bcm2835_rng_disable_intr(struct bcm2835_rng_softc *sc)
         bcm2835_rng_write4(sc, RNG_INT_MASK, mask);
 }
 
-#if defined(BCM2835_RNG_USE_INTERRUPT)
 static void
 bcm2835_rng_enable_intr(struct bcm2835_rng_softc *sc)
 {
@@ -225,15 +232,15 @@ bcm2835_rng_enable_intr(struct bcm2835_rng_softc *sc)
 	mask &= ~RNG_INT_OFF_BIT;
         bcm2835_rng_write4(sc, RNG_INT_MASK, mask);
 }
-#endif
 
 static void
 bcm2835_rng_start(struct bcm2835_rng_softc *sc)
 {
 	uint32_t ctrl;
 
-	/* Disable the interrupt */
-	bcm2835_rng_disable_intr(sc);
+	/* Disable the interrupt, if using interrupt mode */
+	if (sc->sc_mode == BCM2835_RNG_INTERRUPT_MODE)
+		bcm2835_rng_disable_intr(sc);
 
 	/* Set the warmup count */
 	bcm2835_rng_write4(sc, RNG_STATUS, RND_VAL_WARM_CNT);
@@ -245,10 +252,9 @@ bcm2835_rng_start(struct bcm2835_rng_softc *sc)
 		ctrl |= RNG_RBG2X;
 	bcm2835_rng_write4(sc, RNG_CTRL, ctrl);
 
-#if defined(BCM2835_RNG_USE_INTERRUPT)
-	/* Enable the interrupt */
-	bcm2835_rng_enable_intr(sc);
-#endif
+	/* Enable the interrupt, if using interrupt mode */
+	if (sc->sc_mode == BCM2835_RNG_INTERRUPT_MODE)
+		bcm2835_rng_enable_intr(sc);
 }
 
 static void
@@ -316,9 +322,34 @@ bcm2835_rng_harvest(struct bcm2835_rng_softc *sc)
 		random_harvest_queue(sc->sc_buf, cnt, cnt * NBBY / 2,
 		    RANDOM_PURE_BROADCOM);
 
-#if defined(BCM2835_RNG_USE_CALLOUT)
-	callout_reset(&sc->sc_rngto, sc->sc_rnghz, bcm2835_rng_harvest, sc);
-#endif
+	if (sc->sc_mode == BCM2835_RNG_CALLOUT_MODE)
+		callout_reset(&sc->sc_rngto, sc->sc_rnghz,
+		    (void (*)(void *))bcm2835_rng_harvest, sc);
+}
+
+static void
+bcm2835_rng_set_callout_rate(struct bcm2835_rng_softc *sc, int callout_rate)
+{
+	int new_rate;
+
+	/* Do not allow setting less that 100ms callout rate */
+	if (callout_rate < 100) {
+		callout_rate = 100;
+		if (bootverbose)
+			device_printf(sc->sc_dev,
+			    "Callout rate (%d) less than 100ms, using 100ms\n",
+			    callout_rate);
+	}
+
+	new_rate = hz * callout_rate / 1000;
+	if (sc->sc_rnghz == new_rate)
+		return;
+
+	sc->sc_rnghz = new_rate;
+
+	/* Reset callout */
+	callout_reset(&sc->sc_rngto, sc->sc_rnghz,
+	    (void (*)(void *))bcm2835_rng_harvest, sc);
 }
 
 static int
@@ -342,6 +373,31 @@ sysctl_bcm2835_rng_2xspeed(SYSCTL_HANDLER_ARGS)
 	bcm2835_rng_start(sc);
 
 	return (0);
+}
+
+static int
+sysctl_bcm2835_rng_callout_rate(SYSCTL_HANDLER_ARGS)
+{
+	struct bcm2835_rng_softc *sc = arg1;
+	int callout_rate, error;
+
+	callout_rate = sc->sc_rnghz * 1000 / hz;
+	error = sysctl_handle_int(oidp, &callout_rate, 0, req);
+	if (error)
+		return (error);
+	if (req->newptr == NULL)
+		return (error);
+	bcm2835_rng_set_callout_rate(sc, callout_rate);
+
+	return (0);
+}
+
+static int
+sysctl_bcm2835_rng_mode(SYSCTL_HANDLER_ARGS)
+{
+	struct bcm2835_rng_softc *sc = arg1;
+
+	return (SYSCTL_OUT_STR(req, bcm2835_rng_sysctl_modes[sc->sc_mode]));
 }
 
 #ifdef BCM2835_RNG_DEBUG_REGISTERS
@@ -384,18 +440,25 @@ bcm2835_rng_attach(device_t dev)
 	struct bcm2835_rng_softc *sc;
 	struct sysctl_ctx_list *sysctl_ctx;
 	struct sysctl_oid *sysctl_tree;
-	int error, rid;
+	int callout_rate, error, rid, use_interrupt;
 
 	error = 0;
+	use_interrupt = 0;
+	callout_rate = RNG_CALLOUT_RATE;
+
 	sc = device_get_softc(dev);
 	sc->sc_dev = dev;
 	sc->sc_stall_count = RNG_STALL_COUNT_DEFAULT;
-#ifdef BCM2835_RNG_USE_CALLOUT
 	/* Initialize callout */
 	callout_init(&sc->sc_rngto, CALLOUT_MPSAFE);
-#endif
+	/* Fetch tunables */
 	TUNABLE_INT_FETCH("bcmrng.2xspeed", &sc->sc_rbg2x);
 	TUNABLE_INT_FETCH("bcmrng.stall_count", &sc->sc_stall_count);
+	TUNABLE_INT_FETCH("bcmrng.use_interrupt", &use_interrupt);
+	TUNABLE_INT_FETCH("bcmrng.callout_rate", &callout_rate);
+	/* Set gathering mode */
+	sc->sc_mode = use_interrupt ? BCM2835_RNG_INTERRUPT_MODE :
+	    BCM2835_RNG_CALLOUT_MODE;
 
 	/* Allocate memory resources */
 	rid = 0;
@@ -406,26 +469,28 @@ bcm2835_rng_attach(device_t dev)
 		return (ENXIO);
 	}
 
-#if defined(BCM2835_RNG_USE_INTERRUPT)
-	/* Allocate interrupt resource */
-	rid = 0;
-	sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ, &rid,
-	    RF_SHAREABLE | RF_ACTIVE);
-	if (sc->sc_irq_res == NULL) {
-		bcm2835_rng_detach(dev);
-		return (ENXIO);
-	}
+	if (sc->sc_mode == BCM2835_RNG_INTERRUPT_MODE) {
+		/* Allocate interrupt resource */
+		rid = 0;
+		sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ, &rid,
+		    RF_SHAREABLE | RF_ACTIVE);
+		if (sc->sc_irq_res == NULL) {
+			bcm2835_rng_detach(dev);
+			return (ENXIO);
+		}
 
-	/* Set up the interrupt handler */
-	error = bus_setup_intr(dev, sc->sc_irq_res, INTR_TYPE_BIO | INTR_MPSAFE,
-	    NULL, (driver_intr_t *)bcm2835_rng_harvest, sc, &sc->sc_intr_hdl);
-	if (error) {
-		device_printf(dev, "Failed to set up IRQ\n");
-		sc->sc_intr_hdl = NULL;
-		bcm2835_rng_detach(dev);
-		return (error);
+		/* Set up the interrupt handler */
+		error = bus_setup_intr(dev, sc->sc_irq_res,
+		    INTR_TYPE_BIO | INTR_MPSAFE, NULL,
+		    (driver_intr_t *)bcm2835_rng_harvest, sc,
+		    &sc->sc_intr_hdl);
+		if (error) {
+			device_printf(dev, "Failed to set up IRQ\n");
+			sc->sc_intr_hdl = NULL;
+			bcm2835_rng_detach(dev);
+			return (error);
+		}
 	}
-#endif
 
 	/* Start the RNG */
 	bcm2835_rng_start(sc);
@@ -455,20 +520,23 @@ bcm2835_rng_attach(device_t dev)
 	SYSCTL_ADD_INT(sysctl_ctx, SYSCTL_CHILDREN(sysctl_tree), OID_AUTO,
 	    "stall_count", CTLFLAG_RW, &sc->sc_stall_count,
 	    RNG_STALL_COUNT_DEFAULT, "Number of underruns to assume RNG stall");
+	SYSCTL_ADD_PROC(sysctl_ctx, SYSCTL_CHILDREN(sysctl_tree), OID_AUTO,
+	    "mode", CTLTYPE_STRING | CTLFLAG_RD, sc, 0,
+	    sysctl_bcm2835_rng_mode, "S", "Entropy gathering mode");
+	if (sc->sc_mode == BCM2835_RNG_CALLOUT_MODE)
+		SYSCTL_ADD_PROC(sysctl_ctx, SYSCTL_CHILDREN(sysctl_tree),
+		    OID_AUTO, "callout_rate", CTLTYPE_INT | CTLFLAG_RW, sc, 0,
+		    sysctl_bcm2835_rng_callout_rate, "I",
+		    "Callout trigger rate (in ms)");
 #ifdef BCM2835_RNG_DEBUG_REGISTERS
 	SYSCTL_ADD_PROC(sysctl_ctx, SYSCTL_CHILDREN(sysctl_tree), OID_AUTO,
 	    "dumpregs", CTLTYPE_STRING | CTLFLAG_RD, sc, 0,
 	    sysctl_bcm2835_rng_dump, "S", "Dump RNG registers");
 #endif
 
-#if defined(BCM2835_RNG_USE_CALLOUT)
-	/* Reset callout */
-	if (hz >= 100)
-		sc->sc_rnghz = hz / 100;
-	else
-		sc->sc_rnghz = 1;
-	callout_reset(&sc->sc_rngto, sc->sc_rnghz, bcm2835_rng_harvest, sc);
-#endif
+	/* Set up the callout, if using callout mode */
+	if (sc->sc_mode == BCM2835_RNG_CALLOUT_MODE)
+		bcm2835_rng_set_callout_rate(sc, callout_rate);
 
 	return (0);
 }
@@ -477,37 +545,42 @@ static int
 bcm2835_rng_detach(device_t dev)
 {
 	struct bcm2835_rng_softc *sc;
-#if defined(BCM2835_RNG_USE_INTERRUPT)
 	int error;
-#endif
 
 	sc = device_get_softc(dev);
 
 	/* Stop the RNG */
 	bcm2835_rng_stop(sc);
 
-	/* Drain the callout it */
-#if defined(BCM2835_RNG_USE_CALLOUT)
-	callout_drain(&sc->sc_rngto);
-#endif
+	switch (sc->sc_mode) {
+	case BCM2835_RNG_CALLOUT_MODE:
+		/* Drain the callout */
+		callout_drain(&sc->sc_rngto);
+		break;
+	case BCM2835_RNG_INTERRUPT_MODE:
+		/* Disable the interrupt */
+		bcm2835_rng_disable_intr(sc);
 
-#if defined(BCM2835_RNG_USE_INTERRUPT)
-	/* Tear down the interrupt */
-	if (sc->sc_irq_res && sc->sc_intr_hdl) {
-		error = bus_teardown_intr(dev, sc->sc_irq_res, sc->sc_intr_hdl);
-		if (error != 0) {
-			device_printf(dev, "could not tear down IRQ\n");
-			return (error);
+		/* Tear down the interrupt */
+		if (sc->sc_irq_res && sc->sc_intr_hdl) {
+			error = bus_teardown_intr(dev, sc->sc_irq_res,
+			    sc->sc_intr_hdl);
+			if (error != 0) {
+				device_printf(dev, "could not tear down IRQ\n");
+				return (error);
+			}
+			sc->sc_intr_hdl = NULL;
 		}
-		sc->sc_intr_hdl = NULL;
-	}
 
-	/* Release interrupt resource */
-	if (sc->sc_irq_res) {
-		bus_release_resource(dev, SYS_RES_IRQ, 0, sc->sc_irq_res);
-		sc->sc_irq_res = NULL;
+		/* Release interrupt resource */
+		if (sc->sc_irq_res) {
+			bus_release_resource(dev, SYS_RES_IRQ, 0,
+			    sc->sc_irq_res);
+			sc->sc_irq_res = NULL;
+		}
+	default:
+		break;
 	}
-#endif
 
 	/* Release memory resource */
 	if (sc->sc_mem_res != NULL)
