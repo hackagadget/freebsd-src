@@ -475,20 +475,25 @@ bcm2835_rng_attach(device_t dev)
 		sc->sc_irq_res = bus_alloc_resource_any(dev, SYS_RES_IRQ, &rid,
 		    RF_SHAREABLE | RF_ACTIVE);
 		if (sc->sc_irq_res == NULL) {
-			bcm2835_rng_detach(dev);
-			return (ENXIO);
-		}
-
-		/* Set up the interrupt handler */
-		error = bus_setup_intr(dev, sc->sc_irq_res,
-		    INTR_TYPE_BIO | INTR_MPSAFE, NULL,
-		    (driver_intr_t *)bcm2835_rng_harvest, sc,
-		    &sc->sc_intr_hdl);
-		if (error) {
-			device_printf(dev, "Failed to set up IRQ\n");
-			sc->sc_intr_hdl = NULL;
-			bcm2835_rng_detach(dev);
-			return (error);
+			device_printf(dev,
+			    "Failed to allocate IRQ, falling back to "
+			    "callout mode\n");
+			sc->sc_mode = BCM2835_RNG_CALLOUT_MODE;
+		} else {
+			/* Set up the interrupt handler */
+			error = bus_setup_intr(dev, sc->sc_irq_res,
+			    INTR_TYPE_BIO | INTR_MPSAFE, NULL,
+			    (driver_intr_t *)bcm2835_rng_harvest, sc,
+			    &sc->sc_intr_hdl);
+			if (error) {
+				device_printf(dev,
+				    "Failed to set up IRQ, falling back to "
+				    "callout mode\n");
+				bus_release_resource(dev, SYS_RES_IRQ, 0,
+				    sc->sc_irq_res);
+				sc->sc_irq_res = NULL;
+				sc->sc_mode = BCM2835_RNG_CALLOUT_MODE;
+			}
 		}
 	}
 
