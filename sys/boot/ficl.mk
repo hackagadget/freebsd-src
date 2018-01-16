@@ -4,13 +4,6 @@
 
 .include "defs.mk"
 
-.if ${MK_FICL4} != "no"
-FICL_VERSION=   4
-.else
-FICL_VERSION=   3
-.endif
-FICLSRC?=	${SRCTOP}/sys/contrib/ficl${FICL_VERSION}
-
 .if ${MACHINE_CPUARCH} == "amd64" && defined(FICL32)
 FICL_CPUARCH=	i386
 .elif ${MACHINE_ARCH:Mmips64*} != ""

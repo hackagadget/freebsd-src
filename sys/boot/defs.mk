@@ -5,9 +5,15 @@
 .if !defined(__BOOT_DEFS_MK__)
 __BOOT_DEFS_MK__=${MFILE}
 
+.if ${MK_FICL4} != "no"
+FICL_VERSION=	4
+.else
+FICL_VERSION=	3
+.endif
+
 BOOTSRC=	${SRCTOP}/sys/boot
 FDTSRC=		${BOOTSRC}/fdt
-FICLSRC=	${BOOTSRC}/ficl
+FICLSRC=	${SRCTOP}/sys/contrib/ficl${FICL_VERSION}
 LDRSRC=		${BOOTSRC}/common
 SASRC=		${BOOTSRC}/libsa
 SYSDIR=		${SRCTOP}/sys
