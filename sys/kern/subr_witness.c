@@ -132,9 +132,6 @@ __FBSDID("$FreeBSD$");
 #define	LI_EXCLUSIVE	0x00010000	/* Exclusive lock instance. */
 #define	LI_NORELEASE	0x00020000	/* Lock not allowed to be released. */
 
-/* Define this to check for blessed mutexes */
-#undef BLESSING
-
 #ifndef WITNESS_COUNT
 #define	WITNESS_COUNT 		1536
 #endif
@@ -277,13 +274,6 @@ struct witness_lock_order_hash {
 	u_int	wloh_size;
 	u_int	wloh_count;
 };
-
-#ifdef BLESSING
-struct witness_blessed {
-	const char	*b_lock1;
-	const char	*b_lock2;
-};
-#endif
 
 struct witness_pendhelp {
 	const char		*wh_type;
@@ -726,14 +716,8 @@ static struct witness_order_list_entry order_lists[] = {
 	{ NULL, NULL }
 };
 
-#ifdef BLESSING
-/*
- * Pairs of locks which have been blessed
- * Don't complain about order problems with blessed locks
- */
-static struct witness_blessed blessed_list[] = {
-};
-#endif
+WITNESS_BLESSED(null, NULL, NULL);
+SET_DECLARE(witness_blessed_set, struct witness_blessed);
 
 /*
  * This global is set to 0 once it becomes safe to use the witness code.
@@ -1339,8 +1323,8 @@ witness_checkorder(struct lock_object *lock, int flags, const char *file,
 			 * We have a lock order violation, check to see if it
 			 * is allowed or has already been yelled about.
 			 */
-#ifdef BLESSING
 
+#ifdef BLESSING
 			/*
 			 * If the lock order is blessed, just bail.  We don't
 			 * look for other lock order violations though, which
@@ -2088,11 +2072,12 @@ isitmydescendant(struct witness *ancestor, struct witness *descendant)
 static int
 blessed(struct witness *w1, struct witness *w2)
 {
-	int i;
-	struct witness_blessed *b;
+	struct witness_blessed *b, **list;
 
-	for (i = 0; i < nitems(blessed_list); i++) {
-		b = &blessed_list[i];
+	SET_FOREACH(list, witness_blessed_set) {
+		b = *list;
+		if (b->b_lock1 == NULL || b->b_lock2 == NULL)
+			continue;
 		if (strcmp(w1->w_name, b->b_lock1) == 0) {
 			if (strcmp(w2->w_name, b->b_lock2) == 0)
 				return (1);

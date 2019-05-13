@@ -280,6 +280,19 @@ void	witness_thread_exit(struct thread *);
 int	witness_startup_count(void);
 void	witness_startup(void *);
 
+struct witness_blessed {
+	const char	*b_lock1;
+	const char	*b_lock2;
+};
+
+#include <sys/linker_set.h>
+
+#define WITNESS_BLESSED(uniquifier, lock1, lock2)			\
+	static struct witness_blessed _wit_bless_##uniquifier = {	\
+		lock1, lock2						\
+	};								\
+	DATA_SET(witness_blessed_set, _wit_bless_##uniquifier)
+
 /* Flags for witness_warn(). */
 #define	WARN_GIANTOK	0x01	/* Giant is exempt from this check. */
 #define	WARN_PANIC	0x02	/* Panic if check fails. */
@@ -339,6 +352,7 @@ void	witness_startup(void *);
 	witness_line(lock)
 
 #else	/* WITNESS */
+#define	WITNESS_BLESSED(uniquifier, lock1, lock2)
 #define	WITNESS_INIT(lock, type)				(void)0
 #define	WITNESS_DESTROY(lock)					(void)0
 #define	WITNESS_DEFINEORDER(lock1, lock2)	0

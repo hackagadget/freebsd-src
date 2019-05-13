@@ -36,6 +36,8 @@
  *	@(#)cd9660_vfsops.c	8.18 (Berkeley) 5/22/95
  */
 
+#include "opt_witness.h"
+
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
@@ -89,6 +91,8 @@ static struct vfsops cd9660_vfsops = {
 };
 VFS_SET(cd9660_vfsops, cd9660, VFCF_READONLY);
 MODULE_VERSION(cd9660, 1);
+
+WITNESS_BLESSED(isofs, "filedesc structure", "isofs");
 
 static int cd9660_vfs_hash_cmp(struct vnode *vp, void *pino);
 static int iso_mountfs(struct vnode *devvp, struct mount *mp);

@@ -28,6 +28,8 @@
  * $FreeBSD$
  */
 
+#include "opt_witness.h"
+
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/proc.h>
@@ -87,6 +89,8 @@ VFS_SET(smbfs_vfsops, smbfs, VFCF_NETWORK);
 MODULE_DEPEND(smbfs, netsmb, NSMB_VERSION, NSMB_VERSION, NSMB_VERSION);
 MODULE_DEPEND(smbfs, libiconv, 1, 1, 2);
 MODULE_DEPEND(smbfs, libmchain, 1, 1, 1);
+
+WITNESS_BLESSED(smbfs, "filedesc structure", "smbfs");
 
 uma_zone_t smbfs_pbuf_zone;
 

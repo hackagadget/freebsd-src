@@ -44,6 +44,7 @@
  */
 
 #include "opt_tmpfs.h"
+#include "opt_witness.h"
 
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
@@ -716,3 +717,5 @@ struct vfsops tmpfs_vfsops = {
 	.vfs_susp_clean =		tmpfs_susp_clean,
 };
 VFS_SET(tmpfs_vfsops, tmpfs, VFCF_JAIL);
+
+WITNESS_BLESSED(tmpfs, "filedesc structure", "tmpfs");

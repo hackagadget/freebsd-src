@@ -38,6 +38,7 @@ __FBSDID("$FreeBSD$");
 #include "opt_ufs.h"
 #include "opt_ffs.h"
 #include "opt_ddb.h"
+#include "opt_witness.h"
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -118,6 +119,8 @@ static struct vfsops ufs_vfsops = {
 
 VFS_SET(ufs_vfsops, ufs, 0);
 MODULE_VERSION(ufs, 1);
+
+WITNESS_BLESSED(filedesc_ufs, "filedesc structure", "ufs");
 
 static b_strategy_t ffs_geom_strategy;
 static b_write_t ffs_bufwrite;

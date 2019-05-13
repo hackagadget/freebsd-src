@@ -4,6 +4,7 @@
 
 KMOD=	tmpfs
 SRCS=	vnode_if.h \
+	opt_witness.h \
 	tmpfs_vnops.c tmpfs_fifoops.c tmpfs_vfsops.c tmpfs_subr.c opt_tmpfs.h
 
 .include <bsd.kmod.mk>

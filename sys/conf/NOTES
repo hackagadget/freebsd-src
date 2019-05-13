@@ -314,11 +314,14 @@ options 	SX_NOINLINE
 #	  a lock hierarchy violation occurs or if locks are held when going to
 #	  sleep.
 # WITNESS_SKIPSPIN disables the witness checks on spin mutexes.
+# BLESSING causes the witness code to not complain about order problems with
+#	  pairs of blessed locks.
 options 	PREEMPTION
 options 	FULL_PREEMPTION
 options 	WITNESS
 options 	WITNESS_KDB
 options 	WITNESS_SKIPSPIN
+options 	BLESSING
 
 # LOCK_PROFILING - Profiling locks.  See LOCK_PROFILING(9) for details.
 options 	LOCK_PROFILING

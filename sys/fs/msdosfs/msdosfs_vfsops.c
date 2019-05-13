@@ -50,6 +50,8 @@
  * October 1992
  */
 
+#include "opt_witness.h"
+
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/buf.h>
@@ -977,3 +979,5 @@ static struct vfsops msdosfs_vfsops = {
 
 VFS_SET(msdosfs_vfsops, msdosfs, 0);
 MODULE_VERSION(msdosfs, 1);
+
+WITNESS_BLESSED(msdosfs, "filedesc structure", "msdosfs");

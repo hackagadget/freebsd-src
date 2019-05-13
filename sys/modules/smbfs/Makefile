@@ -10,7 +10,7 @@
 KMOD=	smbfs
 
 SRCS=	vnode_if.h \
-	opt_inet.h opt_netsmb.h \
+	opt_inet.h opt_netsmb.h opt_witness.h \
 	iconv_converter_if.h \
 	md4c.c \
 	smb_conn.c smb_dev.c smb_trantcp.c smb_smb.c smb_subr.c smb_rq.c \
