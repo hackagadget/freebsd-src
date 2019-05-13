@@ -594,6 +594,9 @@ typedef int	(*mpo_vnode_check_mprotect_t)(struct ucred *cred,
 typedef int	(*mpo_vnode_check_open_t)(struct ucred *cred,
 		    struct vnode *vp, struct label *vplabel,
 		    accmode_t accmode);
+typedef int	(*mpo_vnode_check_open_post_t)(struct ucred *cred,
+		    struct vnode *vp, struct label *vplabel,
+		    accmode_t accmode);
 typedef int	(*mpo_vnode_check_poll_t)(struct ucred *active_cred,
 		    struct ucred *file_cred, struct vnode *vp,
 		    struct label *vplabel);
@@ -933,6 +936,7 @@ struct mac_policy_ops {
 	mpo_vnode_check_mmap_downgrade_t	mpo_vnode_check_mmap_downgrade;
 	mpo_vnode_check_mprotect_t		mpo_vnode_check_mprotect;
 	mpo_vnode_check_open_t			mpo_vnode_check_open;
+	mpo_vnode_check_open_post_t		mpo_vnode_check_open_post;
 	mpo_vnode_check_poll_t			mpo_vnode_check_poll;
 	mpo_vnode_check_read_t			mpo_vnode_check_read;
 	mpo_vnode_check_readdir_t		mpo_vnode_check_readdir;

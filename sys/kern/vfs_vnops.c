@@ -378,6 +378,10 @@ vn_open_vnode(struct vnode *vp, int fmode, struct ucred *cred,
 	if (error != 0)
 		return (error);
 
+#ifdef MAC
+	error = mac_vnode_check_open_post(cred, vp, accmode);
+	if (error == 0)
+#endif
 	error = vn_open_vnode_advlock(vp, fmode, fp);
 	if (error == 0 && (fmode & FWRITE) != 0) {
 		error = VOP_ADD_WRITECOUNT(vp, 1);
@@ -388,8 +392,9 @@ vn_open_vnode(struct vnode *vp, int fmode, struct ucred *cred,
 	}
 
 	/*
-	 * Error from advlock or VOP_ADD_WRITECOUNT() still requires
-	 * calling VOP_CLOSE() to pair with earlier VOP_OPEN().
+	 * Error from mac_vnode_check_open_post, advlock or
+	 * VOP_ADD_WRITECOUNT() still requires calling VOP_CLOSE() to pair
+	 * with earlier VOP_OPEN().
 	 * Arrange for that by having fdrop() to use vn_closefile().
 	 */
 	if (error != 0) {

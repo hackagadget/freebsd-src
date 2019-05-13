@@ -401,6 +401,8 @@ int	mac_vnode_check_mprotect(struct ucred *cred, struct vnode *vp,
 	    int prot);
 int	mac_vnode_check_open(struct ucred *cred, struct vnode *vp,
 	    accmode_t accmode);
+int	mac_vnode_check_open_post(struct ucred *cred, struct vnode *vp,
+	    accmode_t accmode);
 int	mac_vnode_check_poll(struct ucred *active_cred,
 	    struct ucred *file_cred, struct vnode *vp);
 int	mac_vnode_check_read(struct ucred *active_cred,

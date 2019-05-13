@@ -641,6 +641,23 @@ mac_vnode_check_open(struct ucred *cred, struct vnode *vp, accmode_t accmode)
 	return (error);
 }
 
+MAC_CHECK_PROBE_DEFINE3(vnode_check_open_post, "struct ucred *",
+    "struct vnode *", "accmode_t");
+
+int
+mac_vnode_check_open_post(struct ucred *cred, struct vnode *vp,
+    accmode_t accmode)
+{
+	int error;
+
+	ASSERT_VOP_LOCKED(vp, "mac_vnode_check_open_post");
+
+	MAC_POLICY_CHECK(vnode_check_open_post, cred, vp, vp->v_label, accmode);
+	MAC_CHECK_PROBE3(vnode_check_open_post, error, cred, vp, accmode);
+
+	return (error);
+}
+
 MAC_CHECK_PROBE_DEFINE3(vnode_check_poll, "struct ucred *", "struct ucred *",
     "struct vnode *");
 
