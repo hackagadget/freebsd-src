@@ -321,7 +321,7 @@ mac_veriexec_proc_check_debug(struct ucred *cred, struct proc *p)
 	if (error != 0)
 		return (0);
 
-	return ((flags & VERIEXEC_NOTRACE) ? EACCES : 0);
+	return ((flags & VERIEXEC_NOTRACE) ? ESRCH : 0);
 }
 
 /**
