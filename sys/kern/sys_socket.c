@@ -3,6 +3,7 @@
  *
  * Copyright (c) 1982, 1986, 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
+ * Copyright (c) 2012-2023, Juniper Networks, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -43,6 +44,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/kernel.h>
 #include <sys/kthread.h>
 #include <sys/malloc.h>
+#include <sys/mutex.h>
 #include <sys/proc.h>
 #include <sys/protosw.h>
 #include <sys/sigio.h>
@@ -117,6 +119,68 @@ struct fileops	socketops = {
 	.fo_flags = DFLAG_PASSABLE
 };
 
+static struct socket_iocgroup *so_iocgroups;
+static int so_iocgroup_init_status;
+static struct mtx soiocg_mtx;
+MTX_SYSINIT(soiocg, &soiocg_mtx, "socket ioctl groups", MTX_DEF);
+
+void
+so_iocgroup_add(void *data)
+{
+	struct socket_iocgroup *gp = data;
+
+	mtx_lock(&soiocg_mtx);
+	gp->soiocg_next = so_iocgroups;
+	so_iocgroups = gp;
+
+	KASSERT(so_iocgroup_init_status >= 1,
+	    ("attempt to so_iocgroup_add(%c) before so_iocgroupinit()",
+	    gp->soiocg_group));
+#ifndef INVARIANTS
+	if (so_iocgroup_init_status < 1)
+		printf("WARNING: attempt to so_iocgroup_add(%c) before "
+		    "so_iocgroupinit()\n", gp->soiocg_group);
+#endif
+#ifdef notyet
+	KASSERT(so_iocgroup_init_status < 2,
+	    ("attempt to so_iocgroup_add(%c) after so_iocgroupfinalize()",
+	    gp->soiocg_group));
+#else
+	if (so_iocgroup_init_status >= 2)
+		printf("WARNING: attempt to so_iocgroup_add(%c) after "
+		    "so_iocgroupfinalize()\n", gp->soiocg_group);
+#endif
+	mtx_unlock(&soiocg_mtx);
+}
+
+/* ARGSUSED*/
+static void
+so_iocgroupinit(void *dummy)
+{
+
+	mtx_lock(&soiocg_mtx);
+	KASSERT(so_iocgroup_init_status == 0,
+	    ("so_iocgroupinit called too late!"));
+	so_iocgroup_init_status = 1;
+	mtx_unlock(&soiocg_mtx);
+}
+SYSINIT(so_iocgroup, SI_SUB_PROTO_DOMAININIT, SI_ORDER_ANY, so_iocgroupinit,
+    NULL);
+
+/* ARGSUSED*/
+static void
+so_iocgroupfinalize(void *dummy)
+{
+
+	mtx_lock(&soiocg_mtx);
+	KASSERT(so_iocgroup_init_status == 1,
+	    ("so_iocgroupfinalize called too late!"));
+	so_iocgroup_init_status = 2;
+	mtx_unlock(&soiocg_mtx);
+}
+SYSINIT(so_iocgroupfin, SI_SUB_PROTO_IFATTACHDOMAIN, SI_ORDER_FIRST,
+    so_iocgroupfinalize, NULL);
+
 static int
 soo_read(struct file *fp, struct uio *uio, struct ucred *active_cred,
     int flags, struct thread *td)
@@ -154,6 +218,7 @@ soo_ioctl(struct file *fp, u_long cmd, void *data, struct ucred *active_cred,
     struct thread *td)
 {
 	struct socket *so = fp->f_data;
+	struct socket_iocgroup *gp;
 	int error = 0;
 
 	switch (cmd) {
@@ -263,13 +328,12 @@ soo_ioctl(struct file *fp, u_long cmd, void *data, struct ucred *active_cred,
 		 * routing ioctls should have a different entry since a
 		 * socket is unnecessary.
 		 */
-		if (IOCGROUP(cmd) == 'i')
-			error = ifioctl(so, cmd, data, td);
-		else if (IOCGROUP(cmd) == 'r') {
-			CURVNET_SET(so->so_vnet);
-			error = rtioctl_fib(cmd, data, so->so_fibnum);
-			CURVNET_RESTORE();
-		} else {
+		for (gp = so_iocgroups; gp; gp = gp->soiocg_next)
+			if (gp->soiocg_group == IOCGROUP(cmd))
+				break;
+		if (gp && gp->soiocg_ioctl)
+			error = (*gp->soiocg_ioctl)(so, cmd, data, td);
+		else {
 			CURVNET_SET(so->so_vnet);
 			error = so->so_proto->pr_control(so, cmd, data, 0, td);
 			CURVNET_RESTORE();

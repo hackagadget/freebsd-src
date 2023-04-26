@@ -46,6 +46,7 @@
 #include <sys/malloc.h>
 #include <sys/mbuf.h>
 #include <sys/socket.h>
+#include <sys/socketvar.h>
 #include <sys/sysctl.h>
 #include <sys/syslog.h>
 #include <sys/sysproto.h>
@@ -82,6 +83,13 @@ EVENTHANDLER_LIST_DEFINE(rt_addrmsg);
 
 static int rt_ifdelroute(const struct rtentry *rt, const struct nhop_object *,
     void *arg);
+static int rtioctl_socket(struct socket *, u_long, caddr_t, struct thread *);
+
+static struct socket_iocgroup rtiocgroup = {
+	.soiocg_group = 'r',
+	.soiocg_ioctl = rtioctl_socket,
+};
+SO_IOCGROUP_SET(rt);
 
 /*
  * route initialization must occur before ip6_init2(), which happenas at
@@ -94,6 +102,19 @@ route_init(void)
 	nhops_init();
 }
 SYSINIT(route_init, SI_SUB_PROTO_DOMAIN, SI_ORDER_THIRD, route_init, NULL);
+
+static int
+rtioctl_socket(struct socket *so, u_long cmd, caddr_t data,
+    struct thread *td __unused)
+{
+	int error;
+
+	CURVNET_SET(so->so_vnet);
+	error = rtioctl_fib(cmd, data, so->so_fibnum);
+	CURVNET_RESTORE();
+
+	return (error);
+}
 
 struct rib_head *
 rt_table_init(int offset, int family, u_int fibnum)
