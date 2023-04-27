@@ -163,6 +163,8 @@ __FBSDID("$FreeBSD$");
 #include <compat/freebsd32/freebsd32.h>
 #endif
 
+#include "netstack_if.h"
+
 static int	soreceive_rcvoob(struct socket *so, struct uio *uio,
 		    int flags);
 static void	so_rdknl_lock(void *);
@@ -3146,24 +3148,6 @@ sosetopt(struct socket *so, struct sockopt *sopt)
 			SOCK_UNLOCK(so);
 			break;
 
-		case SO_SETFIB:
-			error = sooptcopyin(sopt, &optval, sizeof optval,
-			    sizeof optval);
-			if (error)
-				goto bad;
-
-			if (optval < 0 || optval >= rt_numfibs) {
-				error = EINVAL;
-				goto bad;
-			}
-			if (((so->so_proto->pr_domain->dom_family == PF_INET) ||
-			   (so->so_proto->pr_domain->dom_family == PF_INET6) ||
-			   (so->so_proto->pr_domain->dom_family == PF_ROUTE)))
-				so->so_fibnum = optval;
-			else
-				so->so_fibnum = 0;
-			break;
-
 		case SO_USER_COOKIE:
 			error = sooptcopyin(sopt, &val32, sizeof val32,
 			    sizeof val32);
@@ -3249,6 +3233,15 @@ sosetopt(struct socket *so, struct sockopt *sopt)
 			so->so_max_pacing_rate = val32;
 			break;
 
+		case SO_SETFIB:
+			/* Let the protocol-specific ctloutput handle it */
+			if (so->so_proto->pr_ctloutput != NULL) {
+				error = (*so->so_proto->pr_ctloutput)(so,
+				    sopt);
+				goto bad;
+			}
+
+			/* Fall through */
 		default:
 			if (V_socket_hhh[HHOOK_SOCKET_OPT]->hhh_nhooks > 0)
 				error = hhook_run_socket(so, sopt,
@@ -3590,6 +3583,29 @@ soopt_mcopyout(struct sockopt *sopt, struct mbuf *m)
 	}
 	sopt->sopt_valsize = valsize;
 	return (0);
+}
+
+int
+soopt_getfib(struct sockopt *sopt, int *fibnum)
+{
+	int error, optval;
+
+	error = sooptcopyin(sopt, &optval, sizeof optval, sizeof(optval));
+	if (error)
+		return (error);
+
+	if (!soopt_validfib(sopt, optval))
+		return (EINVAL);
+
+	*fibnum = optval;
+	return (0);
+}
+
+bool
+soopt_validfib(struct sockopt *sopt, int fibnum)
+{
+
+	return (NETSTACK_SOOPT_VALIDFIB(curnetstack, sopt, fibnum));
 }
 
 /*
@@ -4380,4 +4396,21 @@ so_unlock(struct socket *so)
 {
 
 	SOCK_UNLOCK(so);
+}
+
+int
+sosetfib(struct socket *so, struct sockopt *sopt)
+{
+	int error, fibnum;
+
+	if (sopt->sopt_level != SOL_SOCKET ||
+	    sopt->sopt_name != SO_SETFIB)
+		return (ENOPROTOOPT);
+
+	error = soopt_getfib(sopt, &fibnum);
+	if (error != 0)
+		return (error);
+
+	so->so_fibnum = fibnum;
+	return (0);
 }

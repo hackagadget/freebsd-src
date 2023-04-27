@@ -580,13 +580,14 @@ rip6_ctloutput(struct socket *so, struct sockopt *sopt)
 		 */
 		return (icmp6_ctloutput(so, sopt));
 	else if (sopt->sopt_level != IPPROTO_IPV6) {
-		if (sopt->sopt_level == SOL_SOCKET &&
-		    sopt->sopt_name == SO_SETFIB) {
+		error = sosetfib(so, sopt);
+		if (error == 0) {
 			INP_WLOCK(inp);
 			inp->inp_inc.inc_fibnum = so->so_fibnum;
 			INP_WUNLOCK(inp);
-			return (0);
 		}
+		if (error != ENOPROTOOPT)
+			return (error);
 		return (EINVAL);
 	}
 

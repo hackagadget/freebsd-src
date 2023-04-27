@@ -380,6 +380,13 @@ rts_close(struct socket *so)
 	soisdisconnected(so);
 }
 
+static int
+rts_ctloutput(struct socket *so, struct sockopt *sopt)
+{
+
+	return (sosetfib(so, sopt));
+}
+
 static SYSCTL_NODE(_net, OID_AUTO, rtsock, CTLFLAG_RW | CTLFLAG_MPSAFE, 0,
     "Routing socket infrastructure");
 static u_long rts_sendspace = 8192;
@@ -2691,6 +2698,7 @@ static struct protosw routesw = {
 	.pr_shutdown =		rts_shutdown,
 	.pr_disconnect =	rts_disconnect,
 	.pr_close =		rts_close,
+	.pr_ctloutput =		rts_ctloutput,
 };
 
 static struct domain routedomain = {

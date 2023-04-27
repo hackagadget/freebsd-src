@@ -59,11 +59,14 @@ struct	sockopt {
 
 int	sosetopt(struct socket *so, struct sockopt *sopt);
 int	sogetopt(struct socket *so, struct sockopt *sopt);
+int	sosetfib(struct socket *so, struct sockopt *sopt);
 int	sooptcopyin(struct sockopt *sopt, void *buf, size_t len, size_t minlen);
 int	sooptcopyout(struct sockopt *sopt, const void *buf, size_t len);
+int	soopt_getfib(struct sockopt *sopt, int *fibnum);
 int	soopt_getm(struct sockopt *sopt, struct mbuf **mp);
 int	soopt_mcopyin(struct sockopt *sopt, struct mbuf *m);
 int	soopt_mcopyout(struct sockopt *sopt, struct mbuf *m);
+bool	soopt_validfib(struct sockopt *sopt, int fibnum);
 int	accept_filt_getopt(struct socket *, struct sockopt *);
 int	accept_filt_setopt(struct socket *, struct sockopt *);
 int	so_setsockopt(struct socket *so, int level, int optname,

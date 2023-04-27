@@ -38,12 +38,14 @@ __FBSDID("$FreeBSD$");
 #include "opt_route.h"
 
 #include <sys/param.h>
-#include <sys/socket.h>
 #include <sys/systm.h>
 #include <sys/malloc.h>
 #include <sys/jail.h>
 #include <sys/osd.h>
 #include <sys/proc.h>
+#include <sys/protosw.h>
+#include <sys/socket.h>
+#include <sys/socketvar.h>
 #include <sys/sysctl.h>
 #include <sys/syslog.h>
 #include <sys/kernel.h>
@@ -85,6 +87,8 @@ VNET_DEFINE_STATIC(struct rib_head **, rt_tables);
 #define	V_rt_tables	VNET(rt_tables)
 
 VNET_DEFINE(uint32_t, _rt_numfibs) = RT_NUMFIBS;
+
+static bool rtsooptvalidfib(struct sockopt *sopt, int fibnum);
 
 /*
  * Handler for net.my_fibnum.
@@ -145,24 +149,6 @@ SYSCTL_PROC(_net, OID_AUTO, fibs,
     CTLFLAG_VNET | CTLTYPE_U32 | CTLFLAG_RWTUN | CTLFLAG_NOFETCH | CTLFLAG_MPSAFE,
     NULL, 0, &sysctl_fibs, "IU",
     "set number of fibs");
-
-/*
- * Sets fib of a current process.
- */
-int
-sys_setfib(struct thread *td, struct setfib_args *uap)
-{
-	int error = 0;
-
-	CURVNET_SET(TD_TO_VNET(td));
-	if (uap->fibnum >= 0 && uap->fibnum < V_rt_numfibs)
-		td->td_proc->p_fibnum = uap->fibnum;
-	else
-		error = EINVAL;
-	CURVNET_RESTORE();
-
-	return (error);
-}
 
 static int
 rtables_check_proc_fib(void *obj, void *data)

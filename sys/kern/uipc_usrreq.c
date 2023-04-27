@@ -1730,8 +1730,12 @@ uipc_ctloutput(struct socket *so, struct sockopt *sopt)
 	struct xucred xu;
 	int error, optval;
 
-	if (sopt->sopt_level != SOL_LOCAL)
+	if (sopt->sopt_level != SOL_LOCAL) {
+		error = sosetfib(so, sopt);
+		if (error != ENOPROTOOPT)
+			return (error);
 		return (EINVAL);
+	}
 
 	unp = sotounpcb(so);
 	KASSERT(unp != NULL, ("uipc_ctloutput: unp == NULL"));

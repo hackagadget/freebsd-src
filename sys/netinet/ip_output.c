@@ -1106,10 +1106,14 @@ ip_ctloutput(struct socket *so, struct sockopt *sopt)
 				error = 0;
 				break;
 			case SO_SETFIB:
-				INP_WLOCK(inp);
-				inp->inp_inc.inc_fibnum = so->so_fibnum;
-				INP_WUNLOCK(inp);
-				error = 0;
+				error = sosetfib(so, sopt);
+				if (error == 0) {
+					INP_WLOCK(inp);
+					inp->inp_inc.inc_fibnum = so->so_fibnum;
+					INP_WUNLOCK(inp);
+				}
+				if (error == ENOPROTOOPT)
+					error = 0;
 				break;
 			case SO_MAX_PACING_RATE:
 #ifdef RATELIMIT

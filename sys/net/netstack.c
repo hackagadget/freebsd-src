@@ -38,6 +38,7 @@
 #include <sys/socket.h>
 
 #include <net/exports.h>
+#include <net/route.h>
 
 #include "netstack_if.h"
 
@@ -79,6 +80,14 @@ netstack_socreate(netstack_t nstack __unused, struct socket *so,
 		so->so_fibnum = 0;
 }
 
+static bool
+netstack_soopt_validfib(netstack_t nstack __unused, struct sockopt *sopt,
+    int fibnum)
+{
+
+	return ((u_int)fibnum < V_rt_numfibs);
+}
+
 static int
 netstack_get_capabilities(netstack_t nstack __unused)
 {
@@ -88,11 +97,12 @@ netstack_get_capabilities(netstack_t nstack __unused)
 
 static kobj_method_t netstack_methods[] = {
 	KOBJMETHOD(netstack_get_capabilities,	netstack_get_capabilities),
+	KOBJMETHOD(netstack_socreate,		netstack_socreate),
+	KOBJMETHOD(netstack_soopt_validfib,	netstack_soopt_validfib),
 	KOBJMETHOD(netstack_vfs_free_exports,	netstack_vfs_free_exports),
 	KOBJMETHOD(netstack_vfs_export,		netstack_vfs_export),
 	KOBJMETHOD(netstack_vfs_stdcheckexp,	netstack_vfs_stdcheckexp),
 
-	KOBJMETHOD(netstack_socreate,		netstack_socreate),
 	KOBJMETHOD_END
 };
 NETSTACK_MODULE(freebsd, netstack_methods, SI_ORDER_ANY);

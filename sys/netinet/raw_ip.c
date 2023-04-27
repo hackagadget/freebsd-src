@@ -639,11 +639,11 @@ rip_ctloutput(struct socket *so, struct sockopt *sopt)
 	int	error, optval;
 
 	if (sopt->sopt_level != IPPROTO_IP) {
-		if ((sopt->sopt_level == SOL_SOCKET) &&
-		    (sopt->sopt_name == SO_SETFIB)) {
+		error = sosetfib(so, sopt);
+		if (error == 0)
 			inp->inp_inc.inc_fibnum = so->so_fibnum;
-			return (0);
-		}
+		if (error != ENOPROTOOPT)
+			return (error);
 		return (EINVAL);
 	}
 

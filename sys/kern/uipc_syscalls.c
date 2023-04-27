@@ -56,6 +56,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/rwlock.h>
 #include <sys/socket.h>
 #include <sys/socketvar.h>
+#include <sys/sockopt.h>
 #include <sys/syscallsubr.h>
 #ifdef COMPAT_43
 #include <sys/sysent.h>
@@ -1605,4 +1606,22 @@ m_dispose_extcontrolm(struct mbuf *m)
 		}
 		m_chtype(m, MT_CONTROL);
 	}
+}
+
+/*
+ * Sets fib of a current process.
+ */
+int
+sys_setfib(struct thread *td, struct setfib_args *uap)
+{
+	int error = 0;
+
+	CURVNET_SET(TD_TO_VNET(td));
+	if (soopt_validfib(NULL, uap->fibnum))
+		td->td_proc->p_fibnum = uap->fibnum;
+	else
+		error = EINVAL;
+	CURVNET_RESTORE();
+
+	return (error);
 }

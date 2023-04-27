@@ -30,6 +30,7 @@
 #include <sys/protosw.h>
 #include <sys/proc.h>
 #include <sys/socket.h>
+#include <sys/sockopt.h>
 
 INTERFACE netstack;
 
@@ -41,6 +42,12 @@ CODE {
 	null_get_capabilities(netstack_t nstack)
 	{
 		return (0);
+	}
+
+	static bool
+	null_soopt_validfib(netstack_t nstack, struct sockopt *sopt, int fibnum)
+	{
+		return (fibnum == 0);
 	}
 };
 
@@ -54,6 +61,12 @@ METHOD void socreate {
     struct protosw*	prp;
     struct ucred*	cred;
     struct thread*	td;
+};
+
+METHOD bool soopt_validfib {
+    netstack_t		nstack;
+    struct sockopt*	sopt;
+    int			fibnum;
 };
 
 METHOD int vfs_export {
