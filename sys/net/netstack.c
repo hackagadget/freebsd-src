@@ -31,12 +31,40 @@
 
 #include <sys/param.h>
 #include <sys/systm.h>
+#include <sys/mount.h>
 #include <sys/netstack.h>
 #include <sys/proc.h>
 #include <sys/protosw.h>
 #include <sys/socket.h>
 
+#include <net/exports.h>
+
 #include "netstack_if.h"
+
+static int
+netstack_vfs_export(netstack_t nstack, struct mount *mp,
+    struct export_args *argp)
+{
+
+	return (exports_set_options(mp, argp));
+}
+
+static void
+netstack_vfs_free_exports(netstack_t nstack __unused, struct mount *mp)
+{
+
+	return (exports_free(mp));
+}
+
+static int
+netstack_vfs_stdcheckexp(netstack_t nstack __unused, struct mount *mp,
+    struct sockaddr *nam, uint64_t *extflagsp, struct ucred **credanonp,
+    int *numsecflavors, int *secflavors)
+{
+
+	return (exports_check(mp, nam, extflagsp, credanonp, numsecflavors,
+	    secflavors));
+}
 
 static void
 netstack_socreate(netstack_t nstack __unused, struct socket *so,
@@ -60,6 +88,10 @@ netstack_get_capabilities(netstack_t nstack __unused)
 
 static kobj_method_t netstack_methods[] = {
 	KOBJMETHOD(netstack_get_capabilities,	netstack_get_capabilities),
+	KOBJMETHOD(netstack_vfs_free_exports,	netstack_vfs_free_exports),
+	KOBJMETHOD(netstack_vfs_export,		netstack_vfs_export),
+	KOBJMETHOD(netstack_vfs_stdcheckexp,	netstack_vfs_stdcheckexp),
+
 	KOBJMETHOD(netstack_socreate,		netstack_socreate),
 	KOBJMETHOD_END
 };

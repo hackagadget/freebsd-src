@@ -55,3 +55,24 @@ METHOD void socreate {
     struct ucred*	cred;
     struct thread*	td;
 };
+
+METHOD int vfs_export {
+    netstack_t		nstack;
+    struct mount*	mp;
+    struct export_args*	argp;
+};
+
+METHOD void vfs_free_exports {
+    netstack_t		nstack;
+    struct mount*	mp;
+};
+
+METHOD int vfs_stdcheckexp {
+    netstack_t		nstack;
+    struct mount*	mp;
+    struct sockaddr*	nam;
+    uint64_t*		extflagsp;
+    struct ucred**	credanonp;
+    int*		numsecflavors;
+    int*		secflavors;
+};

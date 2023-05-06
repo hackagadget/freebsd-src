@@ -767,10 +767,7 @@ vfs_mount_destroy(struct mount *mp)
 		    1);
 		crfree(mp->mnt_exjail);
 	}
-	if (mp->mnt_export != NULL) {
-		vfs_free_addrlist(mp->mnt_export);
-		free(mp->mnt_export, M_MOUNT);
-	}
+	vfs_free_exports(mp);
 	crfree(mp->mnt_cred);
 	uma_zfree(mount_zone, mp);
 }

@@ -7142,11 +7142,7 @@ nfsrv_cleanup(const void *unused __unused)
 	nfsrvd_cleancache();
 
 	/* Clean out v4root exports. */
-	if (NFSD_VNET(nfsv4root_mnt)->mnt_export != NULL) {
-		vfs_free_addrlist(NFSD_VNET(nfsv4root_mnt)->mnt_export);
-		free(NFSD_VNET(nfsv4root_mnt)->mnt_export, M_MOUNT);
-		NFSD_VNET(nfsv4root_mnt)->mnt_export = NULL;
-	}
+	vfs_free_exports(NFSD_VNET(nfsv4root_mnt));
 
 	/* Free up the krpc server pool. */
 	if (NFSD_VNET(nfsrvd_pool) != NULL)
