@@ -103,8 +103,13 @@ enum sysinit_sub_id {
 	SI_SUB_MTX_POOL_DYNAMIC	= 0x1AC0000,	/* dynamic mutex pool */
 	SI_SUB_LOCK		= 0x1B00000,	/* various locks */
 	SI_SUB_EVENTHANDLER	= 0x1C00000,	/* eventhandler init */
+	SI_SUB_NETSTACK_PRELINK	= 0x1D00000,	/*
+						 * netstack init before
+						 * modules
+						 */
 	SI_SUB_VNET_PRELINK	= 0x1E00000,	/* vnet init before modules */
 	SI_SUB_KLD		= 0x2000000,	/* KLD and module setup */
+	SI_SUB_NETSTACK		= 0x2040000,	/* netstack init */
 	SI_SUB_KHELP		= 0x2080000,	/* khelp modules */
 	SI_SUB_CPU		= 0x2100000,	/* CPU resource(s)*/
 	SI_SUB_RACCT		= 0x2110000,	/* resource accounting */

@@ -3798,6 +3798,7 @@ kern/kern_mib.c			standard
 kern/kern_module.c		standard
 kern/kern_mtxpool.c		standard
 kern/kern_mutex.c		standard
+kern/kern_netstack.c		standard
 kern/kern_ntptime.c		standard
 kern/kern_osd.c			standard
 kern/kern_physio.c		standard
@@ -3839,6 +3840,7 @@ kern/link_elf.c			standard
 kern/linker_if.m		standard
 kern/md4c.c			optional netsmb
 kern/md5c.c			standard
+kern/netstack_if.m		standard
 kern/p1003_1b.c			standard
 kern/posix4_mib.c		standard
 kern/sched_4bsd.c		optional sched_4bsd

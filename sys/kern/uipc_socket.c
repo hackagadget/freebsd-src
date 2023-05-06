@@ -128,6 +128,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/ktls.h>
 #include <sys/event.h>
 #include <sys/eventhandler.h>
+#include <sys/netstack.h>
 #include <sys/poll.h>
 #include <sys/proc.h>
 #include <sys/protosw.h>
@@ -538,13 +539,8 @@ socreate(int dom, struct socket **aso, int type, int proto,
 
 	so->so_type = type;
 	so->so_cred = crhold(cred);
-	if ((prp->pr_domain->dom_family == PF_INET) ||
-	    (prp->pr_domain->dom_family == PF_INET6) ||
-	    (prp->pr_domain->dom_family == PF_ROUTE))
-		so->so_fibnum = td->td_proc->p_fibnum;
-	else
-		so->so_fibnum = 0;
 	so->so_proto = prp;
+	NETSTACK_SOCREATE(curnetstack, so, prp, cred, td);
 #ifdef MAC
 	mac_socket_create(cred, so);
 #endif
