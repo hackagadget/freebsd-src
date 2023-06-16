@@ -217,6 +217,7 @@ static driver_t kue_driver = {
 DRIVER_MODULE(kue, uhub, kue_driver, NULL, NULL);
 MODULE_DEPEND(kue, uether, 1, 1, 1);
 MODULE_DEPEND(kue, usb, 1, 1, 1);
+MODULE_DEPEND(kue, netstack, 1, 1, 1);
 MODULE_DEPEND(kue, ether, 1, 1, 1);
 MODULE_VERSION(kue, 1);
 USB_PNP_HOST_INFO(kue_devs);

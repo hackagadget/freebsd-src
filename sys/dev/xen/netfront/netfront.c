@@ -2423,3 +2423,4 @@ static driver_t netfront_driver = {
 };
 
 DRIVER_MODULE(xe, xenbusb_front, netfront_driver, NULL, NULL);
+MODULE_DEPEND(xe, netstack, 1, 1, 1);

@@ -62,6 +62,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/bfe/if_bfereg.h>
 
 MODULE_DEPEND(bfe, pci, 1, 1, 1);
+MODULE_DEPEND(bfe, netstack, 1, 1, 1);
 MODULE_DEPEND(bfe, ether, 1, 1, 1);
 MODULE_DEPEND(bfe, miibus, 1, 1, 1);
 

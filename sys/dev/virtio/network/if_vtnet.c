@@ -364,6 +364,7 @@ static driver_t vtnet_driver = {
 VIRTIO_DRIVER_MODULE(vtnet, vtnet_driver, vtnet_modevent, NULL);
 MODULE_VERSION(vtnet, 1);
 MODULE_DEPEND(vtnet, virtio, 1, 1, 1);
+MODULE_DEPEND(vtnet, netstack, 1, 1, 1);
 #ifdef DEV_NETMAP
 MODULE_DEPEND(vtnet, netmap, 1, 1, 1);
 #endif

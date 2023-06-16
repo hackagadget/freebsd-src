@@ -121,6 +121,7 @@ __FBSDID("$FreeBSD$");
 #define	ETHER_MIN_NOPAD		(ETHER_MIN_LEN - ETHER_CRC_LEN) /* i.e., 60 */
 
 MODULE_DEPEND(bge, pci, 1, 1, 1);
+MODULE_DEPEND(bge, netstack, 1, 1, 1);
 MODULE_DEPEND(bge, ether, 1, 1, 1);
 MODULE_DEPEND(bge, miibus, 1, 1, 1);
 

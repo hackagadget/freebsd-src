@@ -80,6 +80,7 @@ __FBSDID("$FreeBSD$");
 #define	AGE_CSUM_FEATURES	(CSUM_TCP | CSUM_UDP)
 
 MODULE_DEPEND(age, pci, 1, 1, 1);
+MODULE_DEPEND(age, netstack, 1, 1, 1);
 MODULE_DEPEND(age, ether, 1, 1, 1);
 MODULE_DEPEND(age, miibus, 1, 1, 1);
 

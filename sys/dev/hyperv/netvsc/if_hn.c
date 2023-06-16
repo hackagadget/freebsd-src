@@ -657,6 +657,7 @@ static driver_t hn_driver = {
 
 DRIVER_MODULE(hn, vmbus, hn_driver, 0, 0);
 MODULE_VERSION(hn, 1);
+MODULE_DEPEND(hn, netstack, 1, 1, 1);
 MODULE_DEPEND(hn, vmbus, 1, 1, 1);
 
 static void

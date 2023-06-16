@@ -516,6 +516,7 @@ static driver_t bce_driver = {
 };
 
 MODULE_DEPEND(bce, pci, 1, 1, 1);
+MODULE_DEPEND(bce, netstack, 1, 1, 1);
 MODULE_DEPEND(bce, ether, 1, 1, 1);
 MODULE_DEPEND(bce, miibus, 1, 1, 1);
 

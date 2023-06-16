@@ -135,6 +135,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/sk/yukonreg.h>
 
 MODULE_DEPEND(sk, pci, 1, 1, 1);
+MODULE_DEPEND(sk, netstack, 1, 1, 1);
 MODULE_DEPEND(sk, ether, 1, 1, 1);
 MODULE_DEPEND(sk, miibus, 1, 1, 1);
 

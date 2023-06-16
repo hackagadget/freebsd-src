@@ -105,6 +105,7 @@ static driver_t qla_pci_driver = {
 DRIVER_MODULE(qla80xx, pci, qla_pci_driver, 0, 0);
 
 MODULE_DEPEND(qla80xx, pci, 1, 1, 1);
+MODULE_DEPEND(qla80xx, netstack, 1, 1, 1);
 MODULE_DEPEND(qla80xx, ether, 1, 1, 1);
 
 MALLOC_DEFINE(M_QLA8XXXBUF, "qla80xxbuf", "Buffers for qla80xx driver");

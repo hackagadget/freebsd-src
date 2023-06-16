@@ -92,6 +92,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/sge/if_sgereg.h>
 
 MODULE_DEPEND(sge, pci, 1, 1, 1);
+MODULE_DEPEND(sge, netstack, 1, 1, 1);
 MODULE_DEPEND(sge, ether, 1, 1, 1);
 MODULE_DEPEND(sge, miibus, 1, 1, 1);
 

@@ -1772,6 +1772,7 @@ DRIVER_MODULE(smsc, uhub, smsc_driver, NULL, NULL);
 DRIVER_MODULE(miibus, smsc, miibus_driver, 0, 0);
 MODULE_DEPEND(smsc, uether, 1, 1, 1);
 MODULE_DEPEND(smsc, usb, 1, 1, 1);
+MODULE_DEPEND(smsc, netstack, 1, 1, 1);
 MODULE_DEPEND(smsc, ether, 1, 1, 1);
 MODULE_DEPEND(smsc, miibus, 1, 1, 1);
 MODULE_VERSION(smsc, 1);

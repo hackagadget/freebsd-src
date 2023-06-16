@@ -82,6 +82,7 @@ __FBSDID("$FreeBSD$");
 #define	JME_CSUM_FEATURES	(CSUM_IP | CSUM_TCP | CSUM_UDP)
 
 MODULE_DEPEND(jme, pci, 1, 1, 1);
+MODULE_DEPEND(jme, netstack, 1, 1, 1);
 MODULE_DEPEND(jme, ether, 1, 1, 1);
 MODULE_DEPEND(jme, miibus, 1, 1, 1);
 

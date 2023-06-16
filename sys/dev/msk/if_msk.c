@@ -146,6 +146,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/msk/if_mskreg.h>
 
 MODULE_DEPEND(msk, pci, 1, 1, 1);
+MODULE_DEPEND(msk, netstack, 1, 1, 1);
 MODULE_DEPEND(msk, ether, 1, 1, 1);
 MODULE_DEPEND(msk, miibus, 1, 1, 1);
 

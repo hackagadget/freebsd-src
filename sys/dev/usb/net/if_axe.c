@@ -278,6 +278,7 @@ DRIVER_MODULE(axe, uhub, axe_driver, NULL, NULL);
 DRIVER_MODULE(miibus, axe, miibus_driver, 0, 0);
 MODULE_DEPEND(axe, uether, 1, 1, 1);
 MODULE_DEPEND(axe, usb, 1, 1, 1);
+MODULE_DEPEND(axe, netstack, 1, 1, 1);
 MODULE_DEPEND(axe, ether, 1, 1, 1);
 MODULE_DEPEND(axe, miibus, 1, 1, 1);
 MODULE_VERSION(axe, 1);

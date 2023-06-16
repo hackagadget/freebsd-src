@@ -172,6 +172,7 @@ static void	cas_tx_task(void *arg, int pending __unused);
 static inline void cas_txkick(struct cas_softc *sc);
 static void	cas_watchdog(struct cas_softc *sc);
 
+MODULE_DEPEND(cas, netstack, 1, 1, 1);
 MODULE_DEPEND(cas, ether, 1, 1, 1);
 MODULE_DEPEND(cas, miibus, 1, 1, 1);
 

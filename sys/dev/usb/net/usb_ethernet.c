@@ -68,6 +68,7 @@ static SYSCTL_NODE(_net, OID_AUTO, ue, CTLFLAG_RD | CTLFLAG_MPSAFE, 0,
 #define	UE_LOCK_ASSERT(_ue, t)	mtx_assert((_ue)->ue_mtx, t)
 
 MODULE_DEPEND(uether, usb, 1, 1, 1);
+MODULE_DEPEND(uether, netstack, 1, 1, 1);
 MODULE_DEPEND(uether, miibus, 1, 1, 1);
 
 static struct unrhdr *ueunit;

@@ -81,6 +81,7 @@ __FBSDID("$FreeBSD$");
 #define	STGE_CSUM_FEATURES	(CSUM_IP | CSUM_TCP | CSUM_UDP)
 
 MODULE_DEPEND(stge, pci, 1, 1, 1);
+MODULE_DEPEND(stge, netstack, 1, 1, 1);
 MODULE_DEPEND(stge, ether, 1, 1, 1);
 MODULE_DEPEND(stge, miibus, 1, 1, 1);
 

@@ -89,6 +89,7 @@ __FBSDID("$FreeBSD$");
 #endif
 
 MODULE_DEPEND(alc, pci, 1, 1, 1);
+MODULE_DEPEND(alc, netstack, 1, 1, 1);
 MODULE_DEPEND(alc, ether, 1, 1, 1);
 MODULE_DEPEND(alc, miibus, 1, 1, 1);
 

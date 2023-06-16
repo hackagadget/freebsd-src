@@ -189,6 +189,7 @@ DRIVER_MODULE(udav, uhub, udav_driver, NULL, NULL);
 DRIVER_MODULE(miibus, udav, miibus_driver, 0, 0);
 MODULE_DEPEND(udav, uether, 1, 1, 1);
 MODULE_DEPEND(udav, usb, 1, 1, 1);
+MODULE_DEPEND(udav, netstack, 1, 1, 1);
 MODULE_DEPEND(udav, ether, 1, 1, 1);
 MODULE_DEPEND(udav, miibus, 1, 1, 1);
 MODULE_VERSION(udav, 1);

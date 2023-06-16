@@ -86,6 +86,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/fxp/rcvbundl.h>
 
 MODULE_DEPEND(fxp, pci, 1, 1, 1);
+MODULE_DEPEND(fxp, netstack, 1, 1, 1);
 MODULE_DEPEND(fxp, ether, 1, 1, 1);
 MODULE_DEPEND(fxp, miibus, 1, 1, 1);
 #include "miibus_if.h"

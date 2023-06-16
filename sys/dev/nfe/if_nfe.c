@@ -66,6 +66,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/nfe/if_nfevar.h>
 
 MODULE_DEPEND(nfe, pci, 1, 1, 1);
+MODULE_DEPEND(nfe, netstack, 1, 1, 1);
 MODULE_DEPEND(nfe, ether, 1, 1, 1);
 MODULE_DEPEND(nfe, miibus, 1, 1, 1);
 

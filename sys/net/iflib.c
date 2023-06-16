@@ -564,6 +564,7 @@ static moduledata_t iflib_moduledata = {
 DECLARE_MODULE(iflib, iflib_moduledata, SI_SUB_INIT_IF, SI_ORDER_ANY);
 MODULE_VERSION(iflib, 1);
 
+MODULE_DEPEND(iflib, netstack, 1, 1, 1);
 MODULE_DEPEND(iflib, pci, 1, 1, 1);
 MODULE_DEPEND(iflib, ether, 1, 1, 1);
 

@@ -57,6 +57,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/mii/miivar.h>
 
 MODULE_VERSION(miibus, 1);
+MODULE_DEPEND(miibus, netstack, 1, 1, 1);
 
 #include "miibus_if.h"
 

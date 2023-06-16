@@ -120,6 +120,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/pci/pcivar.h>
 
 MODULE_DEPEND(vge, pci, 1, 1, 1);
+MODULE_DEPEND(vge, netstack, 1, 1, 1);
 MODULE_DEPEND(vge, ether, 1, 1, 1);
 MODULE_DEPEND(vge, miibus, 1, 1, 1);
 

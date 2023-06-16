@@ -216,6 +216,7 @@ DRIVER_MODULE_ORDERED(rue, uhub, rue_driver, NULL, NULL, SI_ORDER_ANY);
 DRIVER_MODULE(miibus, rue, miibus_driver, NULL, NULL);
 MODULE_DEPEND(rue, uether, 1, 1, 1);
 MODULE_DEPEND(rue, usb, 1, 1, 1);
+MODULE_DEPEND(rue, netstack, 1, 1, 1);
 MODULE_DEPEND(rue, ether, 1, 1, 1);
 MODULE_DEPEND(rue, miibus, 1, 1, 1);
 MODULE_VERSION(rue, 1);

@@ -398,6 +398,7 @@ static driver_t em_driver = {
 DRIVER_MODULE(em, pci, em_driver, 0, 0);
 
 MODULE_DEPEND(em, pci, 1, 1, 1);
+MODULE_DEPEND(em, netstack, 1, 1, 1);
 MODULE_DEPEND(em, ether, 1, 1, 1);
 MODULE_DEPEND(em, iflib, 1, 1, 1);
 

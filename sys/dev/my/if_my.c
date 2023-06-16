@@ -163,6 +163,7 @@ DRIVER_MODULE(my, pci, my_driver, 0, 0);
 MODULE_PNP_INFO("U16:vendor;U16:device;D:#", pci, my, my_devs,
     nitems(my_devs) - 1);
 MODULE_DEPEND(my, pci, 1, 1, 1);
+MODULE_DEPEND(my, netstack, 1, 1, 1);
 MODULE_DEPEND(my, ether, 1, 1, 1);
 
 static long

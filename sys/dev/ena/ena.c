@@ -3926,6 +3926,7 @@ DRIVER_MODULE(ena, pci, ena_driver, 0, 0);
 MODULE_PNP_INFO("U16:vendor;U16:device", pci, ena, ena_vendor_info_array,
     nitems(ena_vendor_info_array) - 1);
 MODULE_DEPEND(ena, pci, 1, 1, 1);
+MODULE_DEPEND(ena, netstack, 1, 1, 1);
 MODULE_DEPEND(ena, ether, 1, 1, 1);
 #ifdef DEV_NETMAP
 MODULE_DEPEND(ena, netmap, 1, 1, 1);

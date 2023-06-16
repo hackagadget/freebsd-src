@@ -79,6 +79,7 @@ __FBSDID("$FreeBSD$");
 #include "miibus_if.h"
 
 MODULE_DEPEND(ste, pci, 1, 1, 1);
+MODULE_DEPEND(ste, netstack, 1, 1, 1);
 MODULE_DEPEND(ste, ether, 1, 1, 1);
 MODULE_DEPEND(ste, miibus, 1, 1, 1);
 

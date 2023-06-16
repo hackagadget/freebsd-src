@@ -82,6 +82,7 @@ __FBSDID("$FreeBSD$");
 #define	ALE_CSUM_FEATURES	(CSUM_TCP | CSUM_UDP)
 
 MODULE_DEPEND(ale, pci, 1, 1, 1);
+MODULE_DEPEND(ale, netstack, 1, 1, 1);
 MODULE_DEPEND(ale, ether, 1, 1, 1);
 MODULE_DEPEND(ale, miibus, 1, 1, 1);
 

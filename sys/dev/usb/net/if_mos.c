@@ -249,6 +249,7 @@ DRIVER_MODULE(mos, uhub, mos_driver, NULL, NULL);
 DRIVER_MODULE(miibus, mos, miibus_driver, 0, 0);
 MODULE_DEPEND(mos, uether, 1, 1, 1);
 MODULE_DEPEND(mos, usb, 1, 1, 1);
+MODULE_DEPEND(mos, netstack, 1, 1, 1);
 MODULE_DEPEND(mos, ether, 1, 1, 1);
 MODULE_DEPEND(mos, miibus, 1, 1, 1);
 USB_PNP_HOST_INFO(mos_devs);

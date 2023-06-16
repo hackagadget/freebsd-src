@@ -274,6 +274,7 @@ static driver_t ti_driver = {
 
 DRIVER_MODULE(ti, pci, ti_driver, 0, 0);
 MODULE_DEPEND(ti, pci, 1, 1, 1);
+MODULE_DEPEND(ti, netstack, 1, 1, 1);
 MODULE_DEPEND(ti, ether, 1, 1, 1);
 
 /*

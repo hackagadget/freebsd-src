@@ -154,6 +154,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/rl/if_rlreg.h>
 
 MODULE_DEPEND(re, pci, 1, 1, 1);
+MODULE_DEPEND(re, netstack, 1, 1, 1);
 MODULE_DEPEND(re, ether, 1, 1, 1);
 MODULE_DEPEND(re, miibus, 1, 1, 1);
 
