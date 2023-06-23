@@ -186,7 +186,7 @@ struct prison {
 	struct cpuset	*pr_cpuset;			/* (p) cpuset */
 	struct vnet	*pr_vnet;			/* (c) network stack */
 	struct vnode	*pr_root;			/* (c) vnode to rdir */
-	struct prison_ip  *pr_addrs[PR_FAMILY_MAX];	/* (p,n) IPs of jail */
+	struct prison_addr  *pr_addrs[PR_FAMILY_MAX];	/* (p,n) IPs of jail */
 	struct prison_racct *pr_prison_racct;		/* (c) racct jail proxy */
 	void		*pr_sparep[3];
 	int		 pr_childcount;			/* (a) number of child jails */
@@ -444,11 +444,9 @@ void prison_set_allow(struct ucred *cred, unsigned flag, int enable);
 bool prison_ischild(struct prison *, struct prison *);
 bool prison_isalive(const struct prison *);
 bool prison_isvalid(struct prison *);
-#if defined(INET) || defined(INET6)
-int prison_ip_check(const struct prison *, const pr_family_t, const void *);
-const void *prison_ip_get0(const struct prison *, const pr_family_t);
-u_int prison_ip_cnt(const struct prison *, const pr_family_t);
-#endif
+int prison_addr_check(const struct prison *, const pr_family_t, const void *);
+const void *prison_addr_get0(const struct prison *, const pr_family_t);
+u_int prison_addr_cnt(const struct prison *, const pr_family_t);
 #ifdef INET
 bool prison_equal_ip4(struct prison *, struct prison *);
 int prison_get_ip4(struct ucred *cred, struct in_addr *ia);

@@ -68,7 +68,7 @@ static in_addr_t
 prison_primary_ip4(const struct prison *pr)
 {
 
-	return (((const struct in_addr *)prison_ip_get0(pr, PR_INET))->s_addr);
+	return (((const struct in_addr *)prison_addr_get0(pr, PR_INET))->s_addr);
 }
 
 int
@@ -242,7 +242,7 @@ prison_local_ip4(struct ucred *cred, struct in_addr *ia)
 		/*
 		 * In case there is only 1 IPv4 address, bind directly.
 		 */
-		if (prison_ip_cnt(pr, PR_INET) == 1)
+		if (prison_addr_cnt(pr, PR_INET) == 1)
 			ia->s_addr = prison_primary_ip4(pr);
 		mtx_unlock(&pr->pr_mtx);
 		return (0);
@@ -312,7 +312,7 @@ prison_check_ip4_locked(const struct prison *pr, const struct in_addr *ia)
 	if (!(pr->pr_flags & PR_IP4))
 		return (0);
 
-	return (prison_ip_check(pr, PR_INET, ia));
+	return (prison_addr_check(pr, PR_INET, ia));
 }
 
 int

@@ -68,7 +68,7 @@ static void
 prison_bcopy_primary_ip6(const struct prison *pr, struct in6_addr *ia6)
 {
 
-	bcopy(prison_ip_get0(pr, PR_INET6), ia6, sizeof(struct in6_addr));
+	bcopy(prison_addr_get0(pr, PR_INET6), ia6, sizeof(struct in6_addr));
 }
 
 int
@@ -227,7 +227,7 @@ prison_local_ip6(struct ucred *cred, struct in6_addr *ia6, int v6only)
 		 * In case there is only 1 IPv6 address, and v6only is true,
 		 * then bind directly.
 		 */
-		if (v6only != 0 && prison_ip_cnt(pr, PR_INET6) == 1)
+		if (v6only != 0 && prison_addr_cnt(pr, PR_INET6) == 1)
 			prison_bcopy_primary_ip6(pr, ia6);
 		mtx_unlock(&pr->pr_mtx);
 		return (0);
@@ -296,7 +296,7 @@ prison_check_ip6_locked(const struct prison *pr, const struct in6_addr *ia6)
 	if (!(pr->pr_flags & PR_IP6))
 		return (0);
 
-	return (prison_ip_check(pr, PR_INET6, ia6));
+	return (prison_addr_check(pr, PR_INET6, ia6));
 }
 
 int
