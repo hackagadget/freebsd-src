@@ -269,7 +269,6 @@ struct accept_filter_arg {
 #define	AF_INET6_SDP	42		/* OFED Socket Direct Protocol ipv6 */
 #define	AF_HYPERV	43		/* HyperV sockets */
 #define	AF_DIVERT	44		/* divert(4) */
-#define	AF_MAX		44
 /*
  * When allocating a new AF_ constant, please only allocate
  * even numbered constants for FreeBSD until 134 as odd numbered AF_
@@ -322,6 +321,8 @@ struct accept_filter_arg {
 #define AF_VENDOR45 129
 #define AF_VENDOR46 131
 #define AF_VENDOR47 133
+/* AF_MAX should be the next even number past the reserved range */
+#define	AF_MAX		134
 #endif
 
 /*
